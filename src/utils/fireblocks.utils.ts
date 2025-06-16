@@ -1,30 +1,16 @@
-import { readFileSync } from "fs";
 import {
   Fireblocks,
-  BasePath,
   TransactionOperation,
   TransferPeerPathType,
   TransactionRequest,
   TransactionResponse,
   FireblocksResponse,
   TransactionStateEnum,
-  CreateTransactionResponse,
   SignedMessageSignature,
   VaultsApiGetPublicKeyInfoRequest,
   SignedMessageAlgorithmEnum,
 } from "@fireblocks/ts-sdk";
-import { createHash } from "crypto";
-
-const FIREBLOCKS_API_SECRET_PATH =
-  "/Users/saleemaraidy/work/rsa/fireblocks_secret.key";
-const API_KEY = "79169abd-695f-40e8-8762-47bfb6072b63";
-
-// Initialize a Fireblocks API instance with local variables
-const fireblocks = new Fireblocks({
-  apiKey: API_KEY,
-  basePath: BasePath.US, // Basepath.Sandbox for the sandbox env
-  secretKey: readFileSync(FIREBLOCKS_API_SECRET_PATH, "utf8"),
-});
+import { derivationPath } from "../constants";
 
 export const getPublicKeyForDerivationPath = async (
   fireblocksSDK: Fireblocks,
@@ -46,43 +32,35 @@ export const getPublicKeyForDerivationPath = async (
   }
 };
 
-const transactionPayload2: TransactionRequest = {
-  assetId: "BTC",
-  operation: TransactionOperation.Raw,
-  source: {
-    type: TransferPeerPathType.VaultAccount,
-    id: "229",
-  },
-  note: ``,
-  extraParameters: {
-    rawMessageData: {},
-  },
-};
-
-const transactionPayload: TransactionRequest = {
-  note: "raw signing test",
-  source: {
-    type: TransferPeerPathType.VaultAccount,
-  },
-  operation: TransactionOperation.Raw,
-  extraParameters: {
-    rawMessageData: {
-      messages: [{}],
-      algorithm: "MPC_EDDSA_ED25519",
+export const createTransactionPayload = (note?: string): TransactionRequest => {
+  return {
+    note: note || "Raw Sinign Transaction with Fireblocks",
+    source: {
+      type: TransferPeerPathType.VaultAccount,
     },
-  },
+    operation: TransactionOperation.Raw,
+    extraParameters: {
+      rawMessageData: {
+        messages: [{}],
+        algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
+      },
+    },
+  };
 };
 
 let txInfo: any;
 
-const getTxStatus = async (txId: string): Promise<TransactionResponse> => {
+const getTxStatus = async (
+  txId: string,
+  fireblocks: Fireblocks
+): Promise<TransactionResponse> => {
   try {
     let response: FireblocksResponse<TransactionResponse> =
       await fireblocks.transactions.getTransaction({ txId });
     let tx: TransactionResponse = response.data;
     let messageToConsole: string = `Transaction ${tx.id} is currently at status - ${tx.status}`;
 
-    // console.log(messageToConsole);
+    console.log(messageToConsole);
     while (tx.status !== TransactionStateEnum.Completed) {
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
@@ -98,7 +76,7 @@ const getTxStatus = async (txId: string): Promise<TransactionResponse> => {
             `Signing request failed/blocked/cancelled: Transaction: ${tx.id} status is ${tx.status}`
           );
         default:
-          // console.log(messageToConsole);
+          console.log(messageToConsole);
           break;
       }
     }
@@ -111,25 +89,38 @@ const getTxStatus = async (txId: string): Promise<TransactionResponse> => {
 
 export const rawSign = async (
   content: any,
-  vaultAccountId: number
+  vaultAccountId: number | string,
+  fireblocks: Fireblocks,
+  note?: string
 ): Promise<SignedMessageSignature | undefined> => {
   const hexContent = Buffer.from(content).toString("hex");
-  // const hexContent = content.replace(/^0x/, "");
+  const transactionPayload = createTransactionPayload(note);
+
+  if (typeof vaultAccountId === "string") {
+    vaultAccountId = Number(vaultAccountId);
+    if (isNaN(vaultAccountId)) {
+      throw new Error(
+        "vaultAccountId string could not be converted to a number."
+      );
+    }
+  }
 
   (transactionPayload.extraParameters as any).rawMessageData = {
     messages: [
       {
         content: hexContent,
-        derivationPath: [44, 637, vaultAccountId, 0, 0],
+        derivationPath: [
+          derivationPath.purpose,
+          derivationPath.coinType,
+          vaultAccountId,
+          derivationPath.change,
+          derivationPath.addressIndex,
+        ],
       },
     ],
     algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
   };
-  transactionPayload.note = `Aptos Transaction: ${hexContent}`;
-  // console.log(
-  //   "⚠️ ⚠️ ⚠️ ⚠️ Transaction Payload:",
-  //   JSON.stringify(transactionPayload, null, 2)
-  // );
+
   try {
     const transactionResponse = await fireblocks.transactions.createTransaction(
       {
@@ -137,28 +128,36 @@ export const rawSign = async (
       }
     );
 
-    // console.log(transactionPayload.extraParameters.rawMessageData);
     const txId = transactionResponse.data.id;
     if (!txId) {
       throw new Error("Transaction ID is undefined.");
     }
-    txInfo = await getTxStatus(txId);
-    // console.log(JSON.stringify(txInfo, null, 2));
+    txInfo = await getTxStatus(txId, fireblocks);
+    console.log(JSON.stringify(txInfo, null, 2));
     const signature = txInfo.signedMessages[0].signature;
-
-    // console.log("Signature: ", JSON.stringify(signature));
 
     const encodedSig =
       Buffer.from([Number.parseInt(signature.v, 16) + 31]).toString("hex") +
       signature.fullSig;
-    // console.log(
-    //   "Encoded Signature:",
-    //   Buffer.from(encodedSig, "hex").toString("base64")
-    // );
+
     return signature;
   } catch (error) {
     console.error(error);
   }
 };
 
-//rawSign("My message23");
+export const checkSignature = (
+  rawSignature: SignedMessageSignature | undefined
+): Buffer<ArrayBuffer> => {
+  if (!rawSignature?.fullSig) {
+    throw new Error("No signature returned from rawSign()");
+  }
+
+  const signatureBytes = Buffer.from(rawSignature.fullSig, "hex");
+
+  if (signatureBytes.length !== 64) {
+    throw new Error("Invalid signature length — must be 64 bytes for Ed25519.");
+  }
+
+  return signatureBytes;
+};

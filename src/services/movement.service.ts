@@ -1,5 +1,5 @@
 import {
-  AccountAddressInput,
+  AccountAuthenticator,
   Aptos,
   AptosConfig,
   CommittedTransactionResponse,
@@ -12,6 +12,7 @@ import {
 } from "@aptos-labs/ts-sdk";
 import {
   BuildTransactionArguments,
+  CreateTransactionArguments,
   GetAccountCoinsDatataArguments,
   GetAllBalancesResponse,
   GetBalanceArguments,
@@ -20,7 +21,11 @@ import {
   SubmitTransactionArguments,
   WaitForTransactionArguments,
 } from "../types";
-import { get } from "http";
+import {
+  createSenderAuthenticator,
+  createTransaction,
+  serializeTransaction,
+} from "../utils/movement.utils";
 
 const fullnodeURL = process.env.APTOS_FULLNODE_URL || "";
 const indexerURL = process.env.APTOS_INDEXER_URL || "";
@@ -35,7 +40,7 @@ export class MovementService {
   private readonly MovementSDK: Aptos;
   private readonly MovementConfig: AptosConfig;
 
-  private constructor() {
+  constructor() {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
       fullnode: fullnodeURL,
@@ -67,6 +72,35 @@ export class MovementService {
     }
   }
 
+  public serializeTransaction = (
+    transaction: SimpleTransaction
+  ): Uint8Array<ArrayBufferLike> => {
+    try {
+      return serializeTransaction(transaction);
+    } catch (error: any) {
+      throw new Error(
+        `Failed to serialize transaction: ${
+          error?.message || error?.toString() || "Unknown error"
+        }`
+      );
+    }
+  };
+
+  public createSenderAuthenticator = (
+    rawPubKey: string,
+    signatureBytes: Buffer | ArrayBuffer
+  ): AccountAuthenticator => {
+    try {
+      return createSenderAuthenticator(rawPubKey, signatureBytes);
+    } catch (error) {
+      throw new Error(
+        `Failed to create sender authenticator: ${
+          (error as Error)?.message || error?.toString() || "Unknown error"
+        }`
+      );
+    }
+  };
+
   public submitTransaction = async (
     SubmitTransactionArgumets: SubmitTransactionArguments
   ): Promise<PendingTransactionResponse> => {
@@ -79,7 +113,7 @@ export class MovementService {
         senderAuthenticator,
         feePayerAuthenticator,
       });
-
+      console.log("Submitted transaction hash:", response.hash);
       return response;
     } catch (error: any) {
       throw new Error(
@@ -264,6 +298,20 @@ export class MovementService {
     } catch (error: any) {
       throw new Error(
         `Failed to get transaction history: ${
+          error?.message || error?.toString() || "Unknown error"
+        }`
+      );
+    }
+  };
+
+  public createTransaction = async (
+    createTransactionArguments: CreateTransactionArguments
+  ): Promise<void> => {
+    try {
+      await createTransaction(createTransactionArguments);
+    } catch (error: any) {
+      throw new Error(
+        `Failed to create transaction: ${
           error?.message || error?.toString() || "Unknown error"
         }`
       );

@@ -3,15 +3,14 @@ import {
   AccountAuthenticator,
   AnyNumber,
   AnyRawTransaction,
-  GetAccountCoinsDataResponse,
   HexInput,
   InputGenerateTransactionOptions,
   InputGenerateTransactionPayloadData,
-  OrderByArg,
   PaginationArgs,
   WaitForTransactionOptions,
-  WhereArg,
 } from "@aptos-labs/ts-sdk";
+import { MovementService } from "./services/movement.service";
+import { FireblocksService } from "./services/fireblocks.service";
 
 export type BuildTransactionArguments = {
   sender: AccountAddressInput;
@@ -67,4 +66,20 @@ export type GetAllBalancesResponse = {
   asset_type: string;
   name: string;
   symbol: string;
+};
+
+export type CreateTransactionArguments = {
+  movementAddress: string;
+  movementPublicKey: string;
+  movementService: MovementService;
+  fireblocksService: FireblocksService;
+  vaultAccountId: string | number;
+  recipientAddress: string;
+  amount: number;
+  maxGasAmount?: number;
+  gasUnitPrice?: number;
+  expireTimestamp?: number;
+  accountSequenceNumber?: AnyNumber;
+  tokenTransfer?: boolean;
+  tokenAsset?: string;
 };

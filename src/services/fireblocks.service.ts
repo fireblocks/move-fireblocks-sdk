@@ -5,7 +5,6 @@ import {
 } from "@fireblocks/ts-sdk";
 import { config } from "../config";
 import fs from "fs";
-import path from "path";
 import {
   getPublicKeyForDerivationPath,
   rawSign,
@@ -14,6 +13,10 @@ import { deriveAptosAddress } from "../utils/movement.utils";
 
 const secretKeyPath = process.env.FIREBLOCKS_SECRET_KEY_PATH || "";
 const basePath = process.env.FIREBLOCKS_BASE_PATH || BasePath.US;
+
+console.log(
+  `Using Fireblocks base path: ${basePath} and secret key path: ${secretKeyPath}`
+);
 
 if (!secretKeyPath) {
   throw new Error(
@@ -31,6 +34,10 @@ export class FireblocksService {
       secretKey: privateKey,
       basePath: basePath,
     });
+  }
+
+  public getFireblocksSDK(): Fireblocks {
+    return this.fireblocksSDK;
   }
 
   public getMovementAddressByVaultID = async (
@@ -83,8 +90,8 @@ export class FireblocksService {
         this.fireblocksSDK,
         vaultID.toString()
       );
-      const movementAddress = deriveAptosAddress(publicKey);
-      return movementAddress;
+
+      return publicKey;
     } catch (error: any) {
       throw new Error(
         `Error getting movement address by vault ID: ${error.message}`
@@ -97,7 +104,11 @@ export class FireblocksService {
     vaultID: string | number
   ): Promise<SignedMessageSignature | undefined> => {
     try {
-      const signature = await rawSign(message, Number(vaultID));
+      const signature = await rawSign(
+        message,
+        Number(vaultID),
+        this.fireblocksSDK
+      );
       if (!signature?.fullSig) {
         throw new Error("No signature returned from rawSign()");
       }
