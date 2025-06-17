@@ -4,12 +4,13 @@ import {
   SignedMessageSignature,
 } from "@fireblocks/ts-sdk";
 import { config } from "../config";
-import fs from "fs";
+import fs, { readFileSync } from "fs";
 import {
   getPublicKeyForDerivationPath,
   rawSign,
 } from "../utils/fireblocks.utils";
 import { deriveAptosAddress } from "../utils/movement.utils";
+import { FireblocksConfig } from "./types";
 
 const secretKeyPath = process.env.FIREBLOCKS_SECRET_KEY_PATH || "";
 const basePath = process.env.FIREBLOCKS_BASE_PATH || BasePath.US;
@@ -27,12 +28,26 @@ if (!secretKeyPath) {
 export class FireblocksService {
   private readonly fireblocksSDK: Fireblocks;
 
-  constructor() {
-    const privateKey = fs.readFileSync(secretKeyPath, "utf8");
+  constructor(fireblocksConfig?: FireblocksConfig) {
+    var privateKey: string;
+    if (fireblocksConfig && fireblocksConfig.apiSecret) {
+      privateKey =
+        fireblocksConfig.apiSecret.endsWith(".pem") ||
+        fireblocksConfig.apiSecret.endsWith(".key")
+          ? readFileSync(fireblocksConfig.apiSecret, "utf8")
+          : fireblocksConfig.apiSecret;
+    } else {
+      privateKey = fs.readFileSync(secretKeyPath, "utf8");
+    }
     this.fireblocksSDK = new Fireblocks({
-      apiKey: config.fireblocks.API_KEY,
+      apiKey: fireblocksConfig
+        ? fireblocksConfig.apiKey
+        : config.fireblocks.API_KEY,
       secretKey: privateKey,
-      basePath: basePath,
+      basePath:
+        fireblocksConfig && fireblocksConfig.basePath
+          ? fireblocksConfig.basePath
+          : basePath,
     });
   }
 

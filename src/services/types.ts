@@ -9,8 +9,9 @@ import {
   PaginationArgs,
   WaitForTransactionOptions,
 } from "@aptos-labs/ts-sdk";
-import { MovementService } from "./services/movement.service";
-import { FireblocksService } from "./services/fireblocks.service";
+import { MovementService } from "./movement.service";
+import { FireblocksService } from "./fireblocks.service";
+import { BasePath } from "@fireblocks/ts-sdk";
 
 export type BuildTransactionArguments = {
   sender: AccountAddressInput;
@@ -82,4 +83,15 @@ export type CreateTransactionArguments = {
   accountSequenceNumber?: AnyNumber;
   tokenTransfer?: boolean;
   tokenAsset?: string;
+};
+
+export type FireblocksConfig = {
+  apiKey: string;
+  apiSecret: string; // can be path or inline string
+  basePath?: BasePath;
+};
+
+export type MovementConfig = {
+  fullnodeUrl: string;
+  indexerUrl: string;
 };

@@ -18,9 +18,10 @@ import {
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoyArguments,
+  MovementConfig,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
-} from "../types";
+} from "./types";
 import {
   createSenderAuthenticator,
   createTransaction,
@@ -40,11 +41,11 @@ export class MovementService {
   private readonly MovementSDK: Aptos;
   private readonly MovementConfig: AptosConfig;
 
-  constructor() {
+  constructor(movementConfig?: MovementConfig) {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
-      fullnode: fullnodeURL,
-      indexer: indexerURL,
+      fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
+      indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
     });
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
@@ -306,9 +307,10 @@ export class MovementService {
 
   public createTransaction = async (
     createTransactionArguments: CreateTransactionArguments
-  ): Promise<void> => {
+  ): Promise<CommittedTransactionResponse> => {
     try {
-      await createTransaction(createTransactionArguments);
+      const response = await createTransaction(createTransactionArguments);
+      return response;
     } catch (error: any) {
       throw new Error(
         `Failed to create transaction: ${

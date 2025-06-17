@@ -1,12 +1,29 @@
-import { AnyNumber, PaginationArgs } from "@aptos-labs/ts-sdk";
+import {
+  AnyNumber,
+  CommittedTransactionResponse,
+  GetAccountCoinsDataResponse,
+  PaginationArgs,
+  TransactionResponse,
+} from "@aptos-labs/ts-sdk";
 import { FireblocksService } from "./services/fireblocks.service";
 import { MovementService } from "./services/movement.service";
 import {
   CreateTransactionArguments,
+  FireblocksConfig,
   GetAccountCoinsDatataArguments,
+  GetAllBalancesResponse,
   GetBalanceArguments,
+  GetMoveBalanceResponse,
   GetTransactionHistoyArguments,
-} from "./types";
+} from "./services/types";
+
+export type MovementFireblocksSDKResponse =
+  | string
+  | GetMoveBalanceResponse
+  | GetAllBalancesResponse[]
+  | TransactionResponse[]
+  | GetAccountCoinsDataResponse
+  | CommittedTransactionResponse;
 
 export class MovementFireblocksSDK {
   private fireblocksService: FireblocksService;
@@ -15,9 +32,12 @@ export class MovementFireblocksSDK {
   private movementAddress: string | undefined;
   private movementPublicKey: string | undefined;
 
-  private constructor(vaultAccountId: string | number) {
+  private constructor(
+    vaultAccountId: string | number,
+    fireblocksConfig?: FireblocksConfig
+  ) {
     try {
-      this.fireblocksService = new FireblocksService();
+      this.fireblocksService = new FireblocksService(fireblocksConfig);
       this.movementService = new MovementService();
     } catch (error) {
       throw new Error(
@@ -30,10 +50,14 @@ export class MovementFireblocksSDK {
   }
 
   public static async create(
-    vaultAccountId: string | number
+    vaultAccountId: string | number,
+    fireblocksConfig?: FireblocksConfig
   ): Promise<MovementFireblocksSDK> {
     try {
-      const instance = new MovementFireblocksSDK(vaultAccountId);
+      const instance = new MovementFireblocksSDK(
+        vaultAccountId,
+        fireblocksConfig
+      );
       instance.movementAddress =
         await instance.fireblocksService.getMovementAddressByVaultID(
           vaultAccountId
@@ -58,7 +82,7 @@ export class MovementFireblocksSDK {
     return this.movementAddress || "";
   };
 
-  public getBalance = async (): Promise<any> => {
+  public getBalance = async (): Promise<GetMoveBalanceResponse> => {
     if (!this.movementAddress) {
       throw new Error("Movement address is not set.");
     }
@@ -76,7 +100,7 @@ export class MovementFireblocksSDK {
     }
   };
 
-  public getBalances = async (): Promise<any> => {
+  public getBalances = async (): Promise<GetAllBalancesResponse[]> => {
     if (!this.movementAddress) {
       throw new Error("Movement address is not set.");
     }
@@ -97,7 +121,7 @@ export class MovementFireblocksSDK {
   public getTransactionsHistory = async (
     limit: number = 10,
     offset: number = 0
-  ): Promise<any> => {
+  ): Promise<TransactionResponse[]> => {
     if (!this.movementAddress) {
       throw new Error("Movement address is not set.");
     }
@@ -117,15 +141,16 @@ export class MovementFireblocksSDK {
     return await this.movementService.getTransactionHistory(args);
   };
 
-  public getAccountCoinsData = async (): Promise<any> => {
-    if (!this.movementAddress) {
-      throw new Error("Movement address is not set.");
-    }
-    const args: GetAccountCoinsDatataArguments = {
-      accountAddress: this.movementAddress,
+  public getAccountCoinsData =
+    async (): Promise<GetAccountCoinsDataResponse> => {
+      if (!this.movementAddress) {
+        throw new Error("Movement address is not set.");
+      }
+      const args: GetAccountCoinsDatataArguments = {
+        accountAddress: this.movementAddress,
+      };
+      return await this.movementService.getAccountCoinsData(args);
     };
-    return await this.movementService.getAccountCoinsData(args);
-  };
 
   public createMoveTransaction = async (
     recipientAddress: string,
@@ -134,7 +159,7 @@ export class MovementFireblocksSDK {
     gasUnitPrice?: number,
     expireTimestamp?: number,
     accountSequenceNumber?: AnyNumber
-  ): Promise<void> => {
+  ): Promise<CommittedTransactionResponse> => {
     if (
       !this.movementAddress ||
       !this.movementPublicKey ||
@@ -156,7 +181,8 @@ export class MovementFireblocksSDK {
       accountSequenceNumber,
     };
     try {
-      await this.movementService.createTransaction(args);
+      const response = await this.movementService.createTransaction(args);
+      return response;
     } catch (error: any) {
       throw new Error(
         `Failed to create move transaction: ${
@@ -174,7 +200,7 @@ export class MovementFireblocksSDK {
     gasUnitPrice?: number,
     expireTimestamp?: number,
     accountSequenceNumber?: AnyNumber
-  ): Promise<void> => {
+  ): Promise<CommittedTransactionResponse> => {
     if (
       !this.movementAddress ||
       !this.movementPublicKey ||
@@ -198,7 +224,8 @@ export class MovementFireblocksSDK {
       tokenAsset: tokenType,
     };
     try {
-      await this.movementService.createTransaction(args);
+      const response = await this.movementService.createTransaction(args);
+      return response;
     } catch (error) {
       throw new Error(
         `Failed to create move transaction: ${

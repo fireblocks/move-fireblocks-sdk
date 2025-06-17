@@ -8,6 +8,7 @@ import {
   AccountAddressInput,
   AccountAuthenticator,
   AccountAuthenticatorEd25519,
+  CommittedTransactionResponse,
   Ed25519PublicKey,
   Ed25519Signature,
   InputEntryFunctionData,
@@ -19,7 +20,7 @@ import {
   CreateTransactionArguments,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
-} from "../types";
+} from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
 
 export function deriveAptosAddress(pubKeyHex: string): string {
@@ -76,7 +77,7 @@ export const createSenderAuthenticator = (
 
 export const createTransaction = async (
   createTransactionArguments: CreateTransactionArguments
-): Promise<void> => {
+): Promise<CommittedTransactionResponse> => {
   const {
     movementAddress,
     recipientAddress,
@@ -147,6 +148,7 @@ export const createTransaction = async (
     };
     const response = movementService.waitForTransaction(waitArgs);
     console.log(response);
+    return response;
   } catch (error: any) {
     throw new Error(
       `Failed to create move transaction: ${
