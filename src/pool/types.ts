@@ -5,8 +5,6 @@ export interface PoolConfig {
   maxPoolSize: number;
   idleTimeoutMs: number;
   cleanupIntervalMs: number;
-  connectionTimeoutMs: number;
-  retryAttempts: number;
 }
 
 export interface SdkPoolItem {

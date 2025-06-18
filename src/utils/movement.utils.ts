@@ -103,7 +103,7 @@ export const createTransaction = async (
       : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
     typeArguments: tokenTransfer
       ? createTokenTransactionConstants.typeArguments
-      : createMoveTransactionConstants.typeArguments,
+      : [], //createMoveTransactionConstants.typeArguments,
     functionArguments: tokenTransfer
       ? [tokenAsset, recipientAddress, amount]
       : [recipientAddress, amount],

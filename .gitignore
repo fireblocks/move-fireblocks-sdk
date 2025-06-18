@@ -11,5 +11,5 @@ dist/
 .vscode/
 
 # scripts
-src/test.ts
+src/tests/*
 

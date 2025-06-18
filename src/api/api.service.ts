@@ -30,7 +30,7 @@ export class MovementFireblocksApiService {
       // Get SDK instance from the pool
       sdk = await this.sdkManager.getSdk(vaultAccountId);
 
-      // Execute the appropriate transaction based on type
+      // Execute the appropriate action based on type
       let result;
       switch (actionType) {
         case ActionType.CREATE_MOVE_TRANSACTION:

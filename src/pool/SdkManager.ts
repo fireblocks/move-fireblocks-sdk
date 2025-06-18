@@ -7,7 +7,6 @@ import { F } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 export class SdkManager {
   private sdkPool: Map<string, SdkPoolItem> = new Map();
   private baseConfig: FireblocksConfig;
-  // private fireblocks: Fireblocks;
   private poolConfig: PoolConfig;
   private cleanupInterval: NodeJS.Timeout;
 
@@ -19,14 +18,7 @@ export class SdkManager {
       maxPoolSize: poolConfig?.maxPoolSize || 100,
       idleTimeoutMs: poolConfig?.idleTimeoutMs || 30 * 60 * 1000, // 30 minutes
       cleanupIntervalMs: poolConfig?.cleanupIntervalMs || 5 * 60 * 1000, // 5 minutes
-      connectionTimeoutMs: poolConfig?.connectionTimeoutMs || 30 * 1000, // 30 seconds
-      retryAttempts: poolConfig?.retryAttempts || 3,
     };
-
-    // // Initialize shared Fireblocks instance
-    // this.fireblocks = FireblocksXrpSdk.createFireblocksInstance(
-    //   this.baseConfig
-    // );
 
     // Start cleanup interval
     this.cleanupInterval = setInterval(
@@ -38,7 +30,7 @@ export class SdkManager {
   /**
    * Get an SDK instance for a specific vault account ID
    * @param vaultAccountId Fireblocks vault account ID
-   * @returns FireblocksXrpSdk instance
+   * @returns MovementFireblocksSDK instance
    */
   public async getSdk(vaultAccountId: string): Promise<MovementFireblocksSDK> {
     // Check if we already have an instance for this vault account
@@ -95,7 +87,7 @@ export class SdkManager {
   /**
    * Create a new SDK instance
    * @param vaultAccountId Vault account ID
-   * @returns New FireblocksXrpSdk instance
+   * @returns New MovementFireblocksSDK instance
    */
   private async createSdkInstance(
     vaultAccountId: string
