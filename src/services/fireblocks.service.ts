@@ -1,3 +1,11 @@
+/**
+ * Service class for interacting with the Fireblocks SDK.
+ *
+ * Provides methods to initialize the Fireblocks SDK, retrieve public keys and Movement addresses
+ * by vault ID, and sign transactions using Fireblocks.
+ *
+ * Handles configuration via environment variables or explicit configuration objects.
+ */
 import {
   BasePath,
   Fireblocks,
@@ -51,10 +59,24 @@ export class FireblocksService {
     });
   }
 
+  /**
+   * @returns The initialized Fireblocks SDK instance of this Service class.
+   */
   public getFireblocksSDK(): Fireblocks {
     return this.fireblocksSDK;
   }
 
+  /**
+   * Retrieves the Movement address associated with a given Fireblocks vault ID.
+   *
+   * This method converts the provided `vaultID` to a non-negative integer, validates it,
+   * and then derives the corresponding public key using the Fireblocks SDK. It then
+   * generates the Aptos movement address from the public key and validates its format.
+   *
+   * @param vaultID - The Fireblocks vault ID as a string or number. Must be a valid non-negative integer.
+   * @returns A promise that resolves to the derived Aptos movement address as a string (66-character hex string starting with "0x").
+   * @throws {Error} If the vault ID is invalid, the public key format is incorrect, the derived address format is incorrect, or if any error occurs during the process.
+   */
   public getMovementAddressByVaultID = async (
     vaultID: string | number
   ): Promise<string> => {
@@ -92,6 +114,16 @@ export class FireblocksService {
     }
   };
 
+  /**
+   * Retrieves the public key associated with a given Fireblocks vault ID.
+   *
+   * This method converts the provided `vaultID` to a non-negative integer, validates it,
+   * and then retrieves the corresponding public key using the Fireblocks SDK.
+   *
+   * @param vaultID - The Fireblocks vault ID as a string or number. Must be a valid non-negative integer.
+   * @returns A promise that resolves to the public key as a string.
+   * @throws {Error} If the vault ID is invalid or if any error occurs during the process.
+   */
   public getPublicKeyByVaultID = async (
     vaultID: string | number
   ): Promise<string> => {
@@ -114,6 +146,17 @@ export class FireblocksService {
     }
   };
 
+  /**
+   * Signs a transaction using the Fireblocks SDK.
+   *
+   * This method takes a message object and a vault ID, and uses the Fireblocks SDK to raw sign the message.
+   * It returns a promise that resolves to a SignedMessageSignature object containing the full signature.
+   *
+   * @param message - The message object to be signed.
+   * @param vaultID - The Fireblocks vault ID as a string or number. Must be a valid non-negative integer.
+   * @returns A promise that resolves to a SignedMessageSignature object containing the full signature.
+   * @throws {Error} If the signing process fails or if no signature is returned.
+   */
   public rawSignTransaction = async (
     message: any,
     vaultID: string | number

@@ -1,3 +1,11 @@
+/**
+ * The MovementService class provides a high-level interface for interacting with the Aptos blockchain
+ * using the Movement SDK. It supports building, serializing, signing, submitting, and tracking transactions,
+ * as well as querying account balances, coin data, and transaction history.
+ *
+ * @remarks
+ * This service abstracts the complexity of direct SDK usage and provides utility methods for common blockchain operations.
+ */
 import {
   AccountAuthenticator,
   Aptos,
@@ -50,6 +58,13 @@ export class MovementService {
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
 
+  /**
+   *  Builds a transaction using the Movement SDK.
+   *  This method prepares a transaction based on the provided params.
+   * @param builtTransactionArguments - object containing the parameters to build the transaction e.g sender, data.
+   * @returns A Promise that resolves to a SimpleTransaction object.
+   * @throws Will throw an error if the transaction building fails.
+   */
   public async buildTransaction(
     builtTransactionArguments: BuildTransactionArguments
   ): Promise<SimpleTransaction> {
@@ -73,6 +88,13 @@ export class MovementService {
     }
   }
 
+  /**
+   * Serializes a transaction into a byte array and prefixes
+   * the transaction with the correct prefix before signing it.
+   * @param transaction - The {@link SimpleTransaction} object to serialize.
+   * @returns A Uint8Array representing the serialized transaction.
+   * @throws Will throw an error if serialization fails.
+   */
   public serializeTransaction = (
     transaction: SimpleTransaction
   ): Uint8Array<ArrayBufferLike> => {
@@ -87,6 +109,13 @@ export class MovementService {
     }
   };
 
+  /**
+   * Creates a sender authenticator using the provided public key and signature.
+   * @param rawPubKey - The public key of the sender in hex format.
+   * @param signatureBytes - The signature bytes to authenticate the sender.
+   * @returns An AccountAuthenticator object for the sender.
+   * @throws Will throw an error if the authenticator creation fails.
+   */
   public createSenderAuthenticator = (
     rawPubKey: string,
     signatureBytes: Buffer | ArrayBuffer
@@ -102,6 +131,12 @@ export class MovementService {
     }
   };
 
+  /**
+   * Submits a transaction to the Movement blockchain.
+   * @param SubmitTransactionArgumets - An object containing the transaction and sender authenticator.
+   * @returns A Promise that resolves to a {@link PendingTransactionResponse} object.
+   * @throws Will throw an error if the transaction submission fails.
+   */
   public submitTransaction = async (
     SubmitTransactionArgumets: SubmitTransactionArguments
   ): Promise<PendingTransactionResponse> => {
@@ -125,6 +160,12 @@ export class MovementService {
     }
   };
 
+  /**
+   * Waits for a transaction to be committed on the Movement blockchain.
+   * @param waitForTransaction - An object containing the transaction hash and options.
+   * @returns A Promise that resolves to a {@link CommittedTransactionResponse} object.
+   * @throws Will throw an error if waiting for the transaction fails.
+   */
   public waitForTransaction = async (
     waitForTransaction: WaitForTransactionArguments
   ): Promise<CommittedTransactionResponse> => {
@@ -146,6 +187,12 @@ export class MovementService {
     }
   };
 
+  /**
+   * Retrieves account coins data from the Movement blockchain.
+   * @param getAccountCoinsDatataArguments - An object containing the account address and minimum ledger version.
+   * @returns A Promise that resolves to a {@link GetAccountCoinsDataResponse} object.
+   * @throws Will throw an error if fetching account coins data fails.
+   */
   public getAccountCoinsData = async (
     getAccountCoinsDatataArguments: GetAccountCoinsDatataArguments
   ): Promise<GetAccountCoinsDataResponse> => {
@@ -168,6 +215,12 @@ export class MovementService {
     }
   };
 
+  /**
+   * Retrieves all balances for a given account address.
+   * @param getBalanceArguments - An object containing the account address and minimum ledger version.
+   * @returns A Promise that resolves to an array of {@link GetAllBalancesResponse} objects.
+   * @throws Will throw an error if fetching balances fails.
+   */
   public getBalances = async (
     getBalanceArguments: GetBalanceArguments
   ): Promise<GetAllBalancesResponse[]> => {
@@ -205,7 +258,13 @@ export class MovementService {
     }
   };
 
-  // For more details about all account coins, use the getAccountCoinsData funtion
+  /**
+   * Retrieves the MOVE coin balance for a given account address.
+   * @param getBalanceArguments - An object containing the account address and minimum ledger version.
+   * @returns A Promise that resolves to a {@link GetMoveBalanceResponse} object.
+   * @throws Will throw an error if fetching MOVE balance fails.
+   * For more details about all account coins, use the getAccountCoinsData funtion
+   */
   public getMoveBalance = async (
     getBalanceArguments: GetBalanceArguments
   ): Promise<GetMoveBalanceResponse> => {
@@ -255,6 +314,12 @@ export class MovementService {
     }
   };
 
+  /**
+   * Retrieves the transaction history for a given account address.
+   * @param getTransactionHistoyArguments - An object containing the account address and options for pagination.
+   * @returns A Promise that resolves to an array of {@link TransactionResponse} objects.
+   * @throws Will throw an error if fetching transaction history fails.
+   */
   public getTransactionHistory = async (
     getTransactionHistoyArguments: GetTransactionHistoyArguments
   ): Promise<TransactionResponse[]> => {
@@ -305,6 +370,13 @@ export class MovementService {
     }
   };
 
+  /**
+   * Creates a transaction on the Movement blockchain.
+   * @param createTransactionArguments - An object containing the parameters to create the transaction.
+   * creates MOVE or token transactions depending on the tokenTransfer boolean parameter.
+   * @returns A Promise that resolves to a {@link CommittedTransactionResponse} object.
+   * @throws Will throw an error if the transaction creation fails.
+   */
   public createTransaction = async (
     createTransactionArguments: CreateTransactionArguments
   ): Promise<CommittedTransactionResponse> => {
