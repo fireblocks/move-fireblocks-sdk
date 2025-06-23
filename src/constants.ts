@@ -5,12 +5,6 @@ export const derivationPath = {
   addressIndex: 0,
 };
 
-// export const createMoveTransactionConstants = {
-//   //function: "0x1::coin::transfer",
-//   function: "0x1::aptos_account::transfer_coins",
-//   typeArguments: ["0x1::aptos_coin::AptosCoin"],
-// };
-
 export const createMoveTransactionConstants = {
   function: "0x1::aptos_account::transfer",
 };
@@ -21,3 +15,22 @@ export const createTokenTransactionConstants = {
 };
 
 export const signingMessagePrefix = "APTOS::RawTransaction";
+
+export const getTransactionConstants = {
+  GET_ACCOUNT_TRANSACTIONS_QUERY: `
+  query GetAccountTransactionsData($address: String, $limit: Int, $offset: Int) {
+account_transactions(
+  where: { account_address: { _eq: $address } }
+  order_by: {transaction_version: desc}
+  limit: $limit
+  offset: $offset
+) {
+  transaction_version
+  __typename
+}
+}
+`,
+  indexerURL: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
+  defaultLimit: 50,
+  defaultOffset: 0,
+};

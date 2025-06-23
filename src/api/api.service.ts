@@ -61,7 +61,11 @@ export class MovementFireblocksApiService {
           result = await sdk.getBalances();
           break;
         case ActionType.GET_TRANSACTIONS_HISTORY:
-          result = await sdk.getTransactionsHistory();
+          result = await sdk.getTransactionsHistory(
+            params.getCachedTransactions,
+            params.limit,
+            params.offset
+          );
           break;
         case ActionType.GET_ACCOUNT_COINS_DATA:
           result = await sdk.getAccountCoinsData();

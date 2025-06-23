@@ -99,10 +99,11 @@ export const getCoinsData: Handler = async (req, res, next) => {
 export const getTransactionsHistory: Handler = async (req, res, next) => {
   try {
     const { vaultId } = req.params;
+    const { getCachedTransactions, limit, options } = req.body;
     const history = await apiService.executeAction(
       vaultId,
       ActionType.GET_TRANSACTIONS_HISTORY,
-      {}
+      { getCachedTransactions, limit, options }
     );
     res.json(history);
   } catch (err) {

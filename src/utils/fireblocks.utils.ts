@@ -143,6 +143,11 @@ export const rawSign = async (
     return signature;
   } catch (error) {
     console.error(error);
+    throw new Error(
+      `Error signing message: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
 };
 
