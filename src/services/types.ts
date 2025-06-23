@@ -7,6 +7,7 @@ import {
   InputGenerateTransactionOptions,
   InputGenerateTransactionPayloadData,
   PaginationArgs,
+  TransactionResponse,
   WaitForTransactionOptions,
 } from "@aptos-labs/ts-sdk";
 import { MovementService } from "./movement.service";
@@ -94,4 +95,10 @@ export type FireblocksConfig = {
 export type MovementConfig = {
   fullnodeUrl: string;
   indexerUrl: string;
+};
+
+export type GetTransactionHistoryResponse = {
+  transaction_version: number;
+  transaction_details: TransactionResponse | undefined;
+  error?: string;
 };

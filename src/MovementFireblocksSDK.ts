@@ -34,8 +34,11 @@ import {
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
+  GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
 } from "./services/types";
+import { get } from "http";
+import { getTransactionConstants } from "./constants";
 
 export type MovementFireblocksSDKResponse =
   | string
@@ -43,7 +46,8 @@ export type MovementFireblocksSDKResponse =
   | GetAllBalancesResponse[]
   | TransactionResponse[]
   | GetAccountCoinsDataResponse
-  | CommittedTransactionResponse;
+  | CommittedTransactionResponse
+  | GetTransactionHistoryResponse[];
 
 export class MovementFireblocksSDK {
   private fireblocksService: FireblocksService;
@@ -51,6 +55,7 @@ export class MovementFireblocksSDK {
   private vaultAccountId: string | number;
   private movementAddress: string | undefined;
   private movementPublicKey: string | undefined;
+  private chachedTransactions: GetTransactionHistoryResponse[] = [];
 
   private constructor(
     vaultAccountId: string | number,
@@ -107,7 +112,7 @@ export class MovementFireblocksSDK {
    * @returns A Promise that resolves to the Movement account address.
    * @throws Will throw an error if the address is not set.
    */
-  public getMovementAccountPublicKey = async (): Promise<string> => {
+  public getMovementAccountPublicKey = (): string => {
     return this.movementPublicKey || "";
   };
 
@@ -116,7 +121,7 @@ export class MovementFireblocksSDK {
    * @returns A Promise that resolves to the Movement account address.
    * @throws Will throw an error if the address is not set.
    */
-  public getMovementAccountAddress = async (): Promise<string> => {
+  public getMovementAccountAddress = (): string => {
     return this.movementAddress || "";
   };
 
@@ -177,26 +182,39 @@ export class MovementFireblocksSDK {
    * @throws {Error} If the movement address is not set or if the transaction history retrieval fails.
    */
   public getTransactionsHistory = async (
-    limit: number = 10,
-    offset: number = 0
-  ): Promise<TransactionResponse[]> => {
+    getCachedTransactions: boolean = true, // Must be manually set to false to fetch fresh transactions
+    limit: number = getTransactionConstants.defaultLimit,
+    offset: number = getTransactionConstants.defaultOffset
+  ): Promise<GetTransactionHistoryResponse[]> => {
+    if (getCachedTransactions) {
+      console.log("Using cached transactions");
+      return this.chachedTransactions;
+    }
     if (!this.movementAddress) {
       throw new Error("Movement address is not set.");
     }
-    /** Pagination optiosn can be set as follows:
-     * options: {
-     *   limit: 10, // Number of transactions to return
-     *   offset: 0, // Offset for pagination
-     *   }
-     */
-    const args: GetTransactionHistoyArguments = {
-      accountAddress: this.movementAddress,
-      options: {
-        limit, // Default limit
-        offset, // Default offset
-      },
-    };
-    return await this.movementService.getTransactionHistory(args);
+    try {
+      const args: GetTransactionHistoyArguments = {
+        accountAddress: this.movementAddress,
+        options: {
+          limit,
+          offset,
+        },
+      };
+      const txs = await this.movementService.getTransactionHistory(args);
+      this.chachedTransactions = txs.map((tx) => ({
+        transaction_version: tx.transaction_version,
+        transaction_details: tx.transaction_details,
+        error: tx.error,
+      }));
+      return txs;
+    } catch (error) {
+      throw new Error(
+        `Failed to get transaction history: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   };
 
   /**

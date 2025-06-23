@@ -25,6 +25,7 @@ import {
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
+  GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
   MovementConfig,
   SubmitTransactionArguments,
@@ -35,6 +36,8 @@ import {
   createTransaction,
   serializeTransaction,
 } from "../utils/movement.utils";
+import { getTransactionConstants } from "../constants";
+import { get } from "http";
 
 const fullnodeURL = process.env.APTOS_FULLNODE_URL || "";
 const indexerURL = process.env.APTOS_INDEXER_URL || "";
@@ -317,54 +320,78 @@ export class MovementService {
   /**
    * Retrieves the transaction history for a given account address.
    * @param getTransactionHistoyArguments - An object containing the account address and options for pagination.
-   * @returns A Promise that resolves to an array of {@link TransactionResponse} objects.
+   * @returns A Promise that resolves to an array of {@link getTransactionHistoryResponse} objects.
    * @throws Will throw an error if fetching transaction history fails.
    */
   public getTransactionHistory = async (
     getTransactionHistoyArguments: GetTransactionHistoyArguments
-  ): Promise<TransactionResponse[]> => {
+  ): Promise<GetTransactionHistoryResponse[]> => {
+    const { accountAddress, options } = getTransactionHistoyArguments;
+    const address = accountAddress as string;
+    const limit = options?.limit || getTransactionConstants.defaultLimit;
+    const offset = options?.offset || getTransactionConstants.defaultOffset;
     try {
-      const { accountAddress, options } = getTransactionHistoyArguments;
-      const limit = options?.limit || 50;
-      let offset: number = Number(options?.offset ?? 0);
+      const result = await fetch(getTransactionConstants.indexerURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: getTransactionConstants.GET_ACCOUNT_TRANSACTIONS_QUERY,
+          variables: { address, limit, offset },
+        }),
+      });
 
-      const sentTxs: TransactionResponse[] = [];
-      while (true) {
-        const page = await this.MovementSDK.getAccountTransactions({
-          accountAddress,
-          options: { offset, limit },
-        });
-        if (page.length === 0) break;
-        sentTxs.push(...page);
-        offset += page.length;
+      if (!result.ok) {
+        throw new Error(
+          `Network response was not ok: ${result.status} ${result.statusText}`
+        );
       }
 
-      offset = 0;
-      const depositEvents: GetEventsResponse = [];
-      while (true) {
-        const page = await this.MovementSDK.getAccountEventsByEventType({
-          accountAddress,
-          eventType: "0x1::coin::DepositEvent",
-          options: { offset, limit },
-        });
-        if (page.length === 0) break;
-        depositEvents.push(...page);
-        offset += page.length;
+      let data;
+      try {
+        data = await result.json();
+      } catch (jsonErr) {
+        throw new Error("Failed to parse JSON response");
       }
 
-      const incomingTxs: TransactionResponse[] = [];
-      for (const e of depositEvents) {
-        const tx = await this.MovementSDK.getTransactionByVersion({
-          ledgerVersion: e.transaction_version,
-        });
-        incomingTxs.push(tx);
+      if (data.errors) {
+        throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
       }
 
-      return [...sentTxs, ...incomingTxs];
-    } catch (error: any) {
+      if (
+        !data?.data?.account_transactions ||
+        !Array.isArray(data.data.account_transactions)
+      ) {
+        throw new Error("No account_transactions found in response");
+      }
+
+      const transactions: GetTransactionHistoryResponse[] = [];
+      for (const tx of data.data.account_transactions) {
+        const version = tx.transaction_version;
+        try {
+          const tx = await this.MovementSDK.getTransactionByVersion({
+            ledgerVersion: version,
+          });
+          transactions.push({
+            transaction_version: version,
+            transaction_details: tx,
+          });
+        } catch (err: any) {
+          console.error(`Error fetching transaction version ${version}:`, err);
+          transactions.push({
+            transaction_version: version,
+            transaction_details: undefined,
+            error:
+              err.message ||
+              "Failed to fetch transaction details for version " + version,
+          });
+        }
+      }
+      return transactions;
+    } catch (err: any) {
+      console.error("Error in fetchTransactions:", err);
       throw new Error(
         `Failed to get transaction history: ${
-          error?.message || error?.toString() || "Unknown error"
+          err.message || err.toString() || "Unknown error"
         }`
       );
     }

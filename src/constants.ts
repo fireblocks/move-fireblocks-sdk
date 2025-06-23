@@ -15,3 +15,22 @@ export const createTokenTransactionConstants = {
 };
 
 export const signingMessagePrefix = "APTOS::RawTransaction";
+
+export const getTransactionConstants = {
+  GET_ACCOUNT_TRANSACTIONS_QUERY: `
+  query GetAccountTransactionsData($address: String, $limit: Int, $offset: Int) {
+account_transactions(
+  where: { account_address: { _eq: $address } }
+  order_by: {transaction_version: desc}
+  limit: $limit
+  offset: $offset
+) {
+  transaction_version
+  __typename
+}
+}
+`,
+  indexerURL: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
+  defaultLimit: 50,
+  defaultOffset: 0,
+};
