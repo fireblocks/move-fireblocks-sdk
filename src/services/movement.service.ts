@@ -15,7 +15,6 @@ import {
   Network,
   PendingTransactionResponse,
   SimpleTransaction,
-  TransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import {
   BuildTransactionArguments,
