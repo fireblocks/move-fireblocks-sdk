@@ -23,10 +23,6 @@ import { FireblocksConfig } from "./types";
 const secretKeyPath = process.env.FIREBLOCKS_SECRET_KEY_PATH || "";
 const basePath = process.env.FIREBLOCKS_BASE_PATH || BasePath.US;
 
-console.log(
-  `Using Fireblocks base path: ${basePath} and secret key path: ${secretKeyPath}`
-);
-
 if (!secretKeyPath) {
   throw new Error(
     "FIREBLOCKS_SECRET_KEY_PATH environment variable is not set."

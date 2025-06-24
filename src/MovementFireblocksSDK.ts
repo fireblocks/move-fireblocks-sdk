@@ -22,7 +22,6 @@ import {
   AnyNumber,
   CommittedTransactionResponse,
   GetAccountCoinsDataResponse,
-  PaginationArgs,
   TransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import { FireblocksService } from "./services/fireblocks.service";
@@ -37,7 +36,6 @@ import {
   GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
 } from "./services/types";
-import { get } from "http";
 import { getTransactionConstants } from "./constants";
 
 export type MovementFireblocksSDKResponse =

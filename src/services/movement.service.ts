@@ -12,11 +12,9 @@ import {
   AptosConfig,
   CommittedTransactionResponse,
   GetAccountCoinsDataResponse,
-  GetEventsResponse,
   Network,
   PendingTransactionResponse,
   SimpleTransaction,
-  TransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import {
   BuildTransactionArguments,
@@ -37,7 +35,6 @@ import {
   serializeTransaction,
 } from "../utils/movement.utils";
 import { getTransactionConstants } from "../constants";
-import { get } from "http";
 
 const fullnodeURL = process.env.APTOS_FULLNODE_URL || "";
 const indexerURL = process.env.APTOS_INDEXER_URL || "";
