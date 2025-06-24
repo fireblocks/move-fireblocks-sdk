@@ -1,6 +1,5 @@
 import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
-import * as serviceTypes from "../services/types";
 
 const options = {
   definition: {

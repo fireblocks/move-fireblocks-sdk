@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { MovementFireblocksApiService } from "./api.service";
 import { ActionType, ApiServiceConfig } from "../pool/types";
 import { BasePath } from "@fireblocks/ts-sdk";
-import { off } from "process";
 import { getTransactionConstants } from "../constants";
 
 // Configure the API Service once for all handlers
