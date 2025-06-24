@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import { MovementFireblocksApiService } from "./api.service";
 import { ActionType, ApiServiceConfig } from "../pool/types";
 import { BasePath } from "@fireblocks/ts-sdk";
+import { off } from "process";
+import { getTransactionConstants } from "../constants";
 
 // Configure the API Service once for all handlers
 const apiConfig: ApiServiceConfig = {
@@ -99,11 +101,18 @@ export const getCoinsData: Handler = async (req, res, next) => {
 export const getTransactionsHistory: Handler = async (req, res, next) => {
   try {
     const { vaultId } = req.params;
-    const { getCachedTransactions, limit, options } = req.body;
+    const limit =
+      parseInt(req.query.limit as string, 10) ||
+      getTransactionConstants.defaultLimit;
+    const offset =
+      parseInt(req.query.offset as string, 10) ||
+      getTransactionConstants.defaultOffset;
+    const getCachedTransactions =
+      req.query.getCachedTransactions === "false" ? false : true;
     const history = await apiService.executeAction(
       vaultId,
       ActionType.GET_TRANSACTIONS_HISTORY,
-      { getCachedTransactions, limit, options }
+      { getCachedTransactions, limit, offset }
     );
     res.json(history);
   } catch (err) {
