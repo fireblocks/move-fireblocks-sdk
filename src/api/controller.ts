@@ -122,6 +122,12 @@ export const createMoveTransaction: Handler = async (req, res, next) => {
       expireTimestamp,
       accountSequenceNumber,
     } = req.body;
+    if (!recipientAddress || !amount) {
+      res.status(400).json({
+        error: "Bad Request : recipientAddress and amount are required",
+      });
+      return;
+    }
     const tx = await apiService.executeAction(
       vaultId,
       ActionType.CREATE_MOVE_TRANSACTION,
@@ -153,6 +159,13 @@ export const createTokenTransaction: Handler = async (req, res, next) => {
       expireTimestamp,
       accountSequenceNumber,
     } = req.body;
+    if (!recipientAddress || !amount || !tokenType) {
+      res.status(400).json({
+        error:
+          "Bad Request : recipientAddress, amount & tokenType are required",
+      });
+      return;
+    }
     const tx = await apiService.executeAction(
       vaultId,
       ActionType.CREATE_TOKEN_TRANSACTION,
