@@ -34,3 +34,8 @@ account_transactions(
   defaultLimit: 50,
   defaultOffset: 0,
 };
+
+export const AptosSDKConstants = {
+  fullnodeUrl: "https://mainnet.movementnetwork.xyz/v1",
+  indexerUrl: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
+};

@@ -34,10 +34,12 @@ import {
   createTransaction,
   serializeTransaction,
 } from "../utils/movement.utils";
-import { getTransactionConstants } from "../constants";
+import { AptosSDKConstants, getTransactionConstants } from "../constants";
 
-const fullnodeURL = process.env.APTOS_FULLNODE_URL || "";
-const indexerURL = process.env.APTOS_INDEXER_URL || "";
+const fullnodeURL =
+  process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
+const indexerURL =
+  process.env.APTOS_INDEXER_URL || AptosSDKConstants.indexerUrl;
 
 if (!indexerURL || !fullnodeURL) {
   throw new Error(
