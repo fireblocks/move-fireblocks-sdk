@@ -1,0 +1,11 @@
+services:
+  sdk:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./secrets/fireblocks_secret.key:/app/secrets/fireblocks_secret.key:ro
+    env_file:
+      - .env

@@ -10,7 +10,7 @@ export const config: {
   aptos: TConfigAptos;
   port: number;
 } = {
-  port: Number(process.env.PORT) || 3001,
+  port: Number(process.env.PORT) || 3000,
   fireblocks: {
     BASE_PATH: process.env.FIREBLOCKS_BASE_PATH || "",
     API_KEY: process.env.FIREBLOCKS_API_KEY || "",

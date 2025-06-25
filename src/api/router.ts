@@ -284,10 +284,6 @@ router.post(
  *     responses:
  *       200:
  *         description: Metrics fetched successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
  *       500:
  *         description: Internal server error
  */
