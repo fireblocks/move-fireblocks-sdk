@@ -15,3 +15,6 @@ src/tests/*
 
 # secrets
 secrets/*
+
+#DS_Store
+.DS_Store
