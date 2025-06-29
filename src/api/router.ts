@@ -2,11 +2,11 @@ import { Router, Request, Response, NextFunction } from "express";
 import * as controller from "./controller";
 
 // Middleware to validate vaultAccountId parameter
-function validateVaultId(
+const validateVaultId = (
   req: Request,
   res: Response,
   next: NextFunction
-): void {
+): void => {
   const { vaultId } = req.params;
   if (!vaultId) {
     res
@@ -15,7 +15,7 @@ function validateVaultId(
     return;
   }
   next();
-}
+};
 
 const router = Router();
 

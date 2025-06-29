@@ -80,10 +80,10 @@ export class MovementFireblocksSDK {
    * @throws Will throw an error if the instance creation fails.
    */
 
-  public static async create(
+  public static create = async (
     vaultAccountId: string | number,
     fireblocksConfig?: FireblocksConfig
-  ): Promise<MovementFireblocksSDK> {
+  ): Promise<MovementFireblocksSDK> => {
     try {
       const instance = new MovementFireblocksSDK(
         vaultAccountId,
@@ -103,7 +103,7 @@ export class MovementFireblocksSDK {
         }`
       );
     }
-  }
+  };
 
   /**
    * Retrieves the Movement account public key associated with the Fireblocks vault account.

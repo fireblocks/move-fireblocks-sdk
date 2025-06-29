@@ -58,9 +58,9 @@ export class FireblocksService {
   /**
    * @returns The initialized Fireblocks SDK instance of this Service class.
    */
-  public getFireblocksSDK(): Fireblocks {
+  public getFireblocksSDK = (): Fireblocks => {
     return this.fireblocksSDK;
-  }
+  };
 
   /**
    * Retrieves the Movement address associated with a given Fireblocks vault ID.

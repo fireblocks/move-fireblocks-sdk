@@ -20,11 +20,11 @@ export class MovementFireblocksApiService {
   /**
    * Execute an action using the appropriate SDK method
    */
-  public async executeAction(
+  public executeAction = async (
     vaultAccountId: string,
     actionType: ActionType,
     params: any
-  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> {
+  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> => {
     let sdk;
     try {
       // Get SDK instance from the pool
@@ -96,19 +96,18 @@ export class MovementFireblocksApiService {
         this.sdkManager.releaseSdk(vaultAccountId);
       }
     }
-  }
-
+  };
   /**
    * Get metrics about the SDK pool
    */
-  public getPoolMetrics() {
+  public getPoolMetrics = () => {
     return this.sdkManager.getMetrics();
-  }
+  };
 
   /**
    * Shut down the API service and all SDK instances
    */
-  public async shutdown(): Promise<void> {
+  public shutdown = async (): Promise<void> => {
     return this.sdkManager.shutdown();
-  }
+  };
 }

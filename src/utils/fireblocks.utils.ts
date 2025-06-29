@@ -17,8 +17,8 @@ export const getPublicKeyForDerivationPath = async (
   vaultAccountId: string
 ): Promise<string> => {
   const requestParams: VaultsApiGetPublicKeyInfoRequest = {
-    derivationPath: `[44, 637, ${vaultAccountId}, 0, 0]`,
-    algorithm: "MPC_EDDSA_ED25519",
+    derivationPath: `[${derivationPath.purpose}, ${derivationPath.coinType}, ${vaultAccountId}, ${derivationPath.change}, ${derivationPath.addressIndex}]`,
+    algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
   };
   try {
     const response = await fireblocksSDK.vaults.getPublicKeyInfo(requestParams);

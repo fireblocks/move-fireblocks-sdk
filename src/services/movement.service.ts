@@ -67,9 +67,9 @@ export class MovementService {
    * @returns A Promise that resolves to a SimpleTransaction object.
    * @throws Will throw an error if the transaction building fails.
    */
-  public async buildTransaction(
+  public buildTransaction = async (
     builtTransactionArguments: BuildTransactionArguments
-  ): Promise<SimpleTransaction> {
+  ): Promise<SimpleTransaction> => {
     try {
       const { sender, data, options, withFeePayer } = builtTransactionArguments;
 
@@ -88,7 +88,7 @@ export class MovementService {
         }`
       );
     }
-  }
+  };
 
   /**
    * Serializes a transaction into a byte array and prefixes
