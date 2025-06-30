@@ -27,7 +27,6 @@ import {
 import { FireblocksService } from "./services/fireblocks.service";
 import { MovementService } from "./services/movement.service";
 import {
-  CreateTransactionArguments,
   FireblocksConfig,
   GetAccountCoinsDataArguments,
   GetAllBalancesResponse,
@@ -40,6 +39,7 @@ import {
 } from "./services/types";
 import { getTransactionConstants } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
+import { validateApiCredentials } from "./utils/fireblocks.utils";
 
 export type MovementFireblocksSDKResponse =
   | string
@@ -63,13 +63,19 @@ export class MovementFireblocksSDK {
     fireblocksConfig?: FireblocksConfig
   ) {
     try {
+      // Validate Fireblocks API credentials before initializing services
+      if (fireblocksConfig) {
+        validateApiCredentials(
+          fireblocksConfig.apiKey,
+          fireblocksConfig.basePath ?? "",
+          vaultAccountId
+        );
+      }
       this.fireblocksService = new FireblocksService(fireblocksConfig);
       this.movementService = new MovementService();
     } catch (error) {
       throw new Error(
-        `Failed to initialize services: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to initialize services: ${formatErrorMessage(error)}`
       );
     }
     this.vaultAccountId = vaultAccountId;
