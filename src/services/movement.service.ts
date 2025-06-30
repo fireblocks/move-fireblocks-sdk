@@ -19,7 +19,7 @@ import {
 import {
   BuildTransactionArguments,
   CreateTransactionArguments,
-  GetAccountCoinsDatataArguments,
+  GetAccountCoinsDataArguments,
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
@@ -187,7 +187,7 @@ export class MovementService {
    * @throws Will throw an error if fetching account coins data fails.
    */
   public getAccountCoinsData = async (
-    getAccountCoinsDatataArguments: GetAccountCoinsDatataArguments
+    getAccountCoinsDatataArguments: GetAccountCoinsDataArguments
   ): Promise<GetAccountCoinsDataResponse> => {
     const { accountAddress, minimumLedgerVersion } =
       getAccountCoinsDatataArguments;
