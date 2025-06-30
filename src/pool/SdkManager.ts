@@ -1,6 +1,7 @@
 import { MovementFireblocksSDK } from "../MovementFireblocksSDK";
 import { PoolConfig, SdkPoolItem, SdkManagerMetrics } from "./types";
 import { FireblocksConfig } from "../services/types";
+import { formatErrorMessage } from "../utils/errorHandling";
 
 export class SdkManager {
   private sdkPool: Map<string, SdkPoolItem> = new Map();
@@ -104,7 +105,9 @@ export class SdkManager {
       console.error(`Failed to create SDK for vault ${vaultAccountId}:`, error);
       throw new Error(
         `SdkCreationFailed : 
-        Failed to create SDK instance for vault ${vaultAccountId}: ${error}`
+        Failed to create SDK instance for vault ${vaultAccountId}: ${formatErrorMessage(
+          error
+        )}`
       );
     }
   };

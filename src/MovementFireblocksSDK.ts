@@ -37,6 +37,7 @@ import {
   GetTransactionHistoyArguments,
 } from "./services/types";
 import { getTransactionConstants } from "./constants";
+import { formatErrorMessage } from "./utils/errorHandling";
 
 export type MovementFireblocksSDKResponse =
   | string
@@ -98,17 +99,16 @@ export class MovementFireblocksSDK {
       return instance;
     } catch (error) {
       throw new Error(
-        `Failed to create MovementFireblocksSDK instance: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create MovementFireblocksSDK instance: ${formatErrorMessage(
+          error
+        )}`
       );
     }
   };
 
   /**
    * Retrieves the Movement account public key associated with the Fireblocks vault account.
-   * @returns A Promise that resolves to the Movement account address.
-   * @throws Will throw an error if the address is not set.
+   * @returns The Movement account public key or empty string if not set.
    */
   public getMovementAccountPublicKey = (): string => {
     return this.movementPublicKey || "";
@@ -116,8 +116,7 @@ export class MovementFireblocksSDK {
 
   /**
    * Retrieves the Movement account address associated with the Fireblocks vault account.
-   * @returns A Promise that resolves to the Movement account address.
-   * @throws Will throw an error if the address is not set.
+   * @returns The Movement account address or empty string if not set.
    */
   public getMovementAccountAddress = (): string => {
     return this.movementAddress || "";
@@ -139,11 +138,7 @@ export class MovementFireblocksSDK {
     try {
       return await this.movementService.getMoveBalance(args);
     } catch (error) {
-      throw new Error(
-        `Failed to get balance: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -163,11 +158,7 @@ export class MovementFireblocksSDK {
     try {
       return await this.movementService.getBalances(args);
     } catch (error) {
-      throw new Error(
-        `Failed to get balances: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new Error(`Failed to get balances: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -208,9 +199,7 @@ export class MovementFireblocksSDK {
       return txs;
     } catch (error) {
       throw new Error(
-        `Failed to get transaction history: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to get transaction history: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -276,9 +265,7 @@ export class MovementFireblocksSDK {
       return response;
     } catch (error: any) {
       throw new Error(
-        `Failed to create move transaction: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create move transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -332,9 +319,7 @@ export class MovementFireblocksSDK {
       return response;
     } catch (error) {
       throw new Error(
-        `Failed to create move transaction: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create token transaction: ${formatErrorMessage(error)}`
       );
     }
   };

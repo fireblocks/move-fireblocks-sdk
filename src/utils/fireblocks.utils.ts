@@ -11,6 +11,7 @@ import {
   SignedMessageAlgorithmEnum,
 } from "@fireblocks/ts-sdk";
 import { derivationPath } from "../constants";
+import { formatErrorMessage } from "./errorHandling";
 
 export const getPublicKeyForDerivationPath = async (
   fireblocksSDK: Fireblocks,
@@ -28,7 +29,7 @@ export const getPublicKeyForDerivationPath = async (
     }
     return publicKey;
   } catch (error: any) {
-    throw new Error(`Error fetching public key: ${error.message}`);
+    throw new Error(`Error fetching public key: ${formatErrorMessage(error)}`);
   }
 };
 
@@ -143,11 +144,7 @@ export const rawSign = async (
     return signature;
   } catch (error) {
     console.error(error);
-    throw new Error(
-      `Error signing message: ${
-        error instanceof Error ? error.message : String(error)
-      }`
-    );
+    throw new Error(`Error signing message: ${formatErrorMessage(error)}`);
   }
 };
 

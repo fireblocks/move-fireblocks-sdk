@@ -2,6 +2,7 @@ import { BasePath, TransactionResponse } from "@fireblocks/ts-sdk";
 import { SdkManager } from "../pool/SdkManager";
 import { ActionType, ApiServiceConfig } from "../pool/types";
 import { MovementFireblocksSDKResponse } from "../MovementFireblocksSDK";
+import { formatErrorMessage } from "../utils/errorHandling";
 
 export class MovementFireblocksApiService {
   private sdkManager: SdkManager;
@@ -79,7 +80,7 @@ export class MovementFireblocksApiService {
         default:
           throw new Error(
             `InvalidType :
-            Unknown transaction type: ${actionType}`
+            Unknown action type: ${actionType}`
           );
       }
 
@@ -89,7 +90,7 @@ export class MovementFireblocksApiService {
         `Error executing ${actionType} for vault ${vaultAccountId}:`,
         error
       );
-      throw error;
+      throw new Error(`Failed to execute action: ${formatErrorMessage(error)}`);
     } finally {
       // Always release the SDK back to the pool
       if (sdk) {

@@ -22,6 +22,7 @@ import {
   WaitForTransactionArguments,
 } from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
+import { formatErrorMessage } from "./errorHandling";
 
 export const deriveAptosAddress = (pubKeyHex: string): string => {
   const clean = pubKeyHex.startsWith("0x") ? pubKeyHex.slice(2) : pubKeyHex;
@@ -45,9 +46,7 @@ export const serializeTransaction = (
     return signingMessage;
   } catch (error: any) {
     throw new Error(
-      `Failed to serialize transaction: ${
-        error?.message || error?.toString() || "Unknown error"
-      }`
+      `Failed to serialize transaction: ${formatErrorMessage(error)}`
     );
   }
 };
@@ -68,9 +67,7 @@ export const createSenderAuthenticator = (
     return senderAuthenticator;
   } catch (error: any) {
     throw new Error(
-      `Failed to create sender authenticator: ${
-        error?.message || error?.toString() || "Unknown error"
-      }`
+      `Failed to create sender authenticator: ${formatErrorMessage(error)}`
     );
   }
 };
@@ -151,9 +148,7 @@ export const createTransaction = async (
     return response;
   } catch (error: any) {
     throw new Error(
-      `Failed to create move transaction: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Failed to create transaction: ${formatErrorMessage(error)}`
     );
   }
 };
