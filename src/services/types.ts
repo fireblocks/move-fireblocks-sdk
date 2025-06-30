@@ -32,15 +32,14 @@ export type WaitForTransactionArguments = {
   options?: WaitForTransactionOptions;
 };
 
-export type GetAccountCoinsDataArguments = {
+export type AccountInfoBase = {
   accountAddress: AccountAddressInput;
   minimumLedgerVersion?: AnyNumber;
 };
 
-export type GetBalanceArguments = {
-  accountAddress: AccountAddressInput;
-  minimumLedgerVersion?: AnyNumber;
-};
+export type GetAccountCoinsDataArguments = AccountInfoBase;
+
+export type GetBalanceArguments = AccountInfoBase;
 
 export type GetMoveBalanceResponse = {
   moveCoins: {
