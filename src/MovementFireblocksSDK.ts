@@ -29,7 +29,7 @@ import { MovementService } from "./services/movement.service";
 import {
   CreateTransactionArguments,
   FireblocksConfig,
-  GetAccountCoinsDatataArguments,
+  GetAccountCoinsDataArguments,
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
@@ -215,7 +215,7 @@ export class MovementFireblocksSDK {
       if (!this.movementAddress) {
         throw new Error("Movement address is not set.");
       }
-      const args: GetAccountCoinsDatataArguments = {
+      const args: GetAccountCoinsDataArguments = {
         accountAddress: this.movementAddress,
       };
       return await this.movementService.getAccountCoinsData(args);

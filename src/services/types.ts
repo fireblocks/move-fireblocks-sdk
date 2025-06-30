@@ -32,7 +32,7 @@ export type WaitForTransactionArguments = {
   options?: WaitForTransactionOptions;
 };
 
-export type GetAccountCoinsDatataArguments = {
+export type GetAccountCoinsDataArguments = {
   accountAddress: AccountAddressInput;
   minimumLedgerVersion?: AnyNumber;
 };
