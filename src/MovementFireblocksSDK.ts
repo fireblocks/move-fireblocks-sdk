@@ -35,6 +35,8 @@ import {
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
+  MoveTransactionArguments,
+  TokenTransactionArguments,
 } from "./services/types";
 import { getTransactionConstants } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
@@ -247,7 +249,8 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
-    const args: CreateTransactionArguments = {
+    const args: MoveTransactionArguments = {
+      transactionType: "move",
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,
       movementService: this.movementService,
@@ -299,7 +302,9 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
-    const args: CreateTransactionArguments = {
+    const args: TokenTransactionArguments = {
+      transactionType: "token",
+      tokenAsset: tokenType,
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,
       movementService: this.movementService,
@@ -311,8 +316,6 @@ export class MovementFireblocksSDK {
       gasUnitPrice,
       expireTimestamp,
       accountSequenceNumber,
-      tokenTransfer: true,
-      tokenAsset: tokenType,
     };
     try {
       const response = await this.movementService.createTransaction(args);

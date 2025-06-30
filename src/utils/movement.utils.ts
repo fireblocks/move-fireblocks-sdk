@@ -20,6 +20,7 @@ import {
   CreateTransactionArguments,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
+  TokenTransactionArguments,
 } from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
 import { formatErrorMessage } from "./errorHandling";
@@ -76,6 +77,7 @@ export const createTransaction = async (
   createTransactionArguments: CreateTransactionArguments
 ): Promise<CommittedTransactionResponse> => {
   const {
+    transactionType,
     movementAddress,
     recipientAddress,
     amount,
@@ -87,17 +89,22 @@ export const createTransaction = async (
     fireblocksService,
     vaultAccountId,
     movementPublicKey,
-    tokenTransfer,
-    tokenAsset,
   } = createTransactionArguments;
+
+  // Narrow type for tokenAsset if present
+  const tokenTransfer = "tokenAsset" in createTransactionArguments;
+  const tokenAsset = tokenTransfer
+    ? (createTransactionArguments as TokenTransactionArguments).tokenAsset
+    : undefined;
   if (!movementAddress) {
     throw new Error("Movement address is not set.");
   }
   const sender: AccountAddressInput = movementAddress;
   const data: InputEntryFunctionData = {
-    function: tokenTransfer
-      ? (createTokenTransactionConstants.function as `${string}::${string}::${string}`)
-      : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
+    function:
+      transactionType === "token"
+        ? (createTokenTransactionConstants.function as `${string}::${string}::${string}`)
+        : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
     typeArguments: tokenTransfer
       ? createTokenTransactionConstants.typeArguments
       : [],
