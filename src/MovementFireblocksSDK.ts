@@ -36,6 +36,7 @@ import {
   GetTransactionHistoyArguments,
   MoveTransactionArguments,
   TokenTransactionArguments,
+  TransactionType,
 } from "./services/types";
 import { getTransactionConstants } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
@@ -67,7 +68,7 @@ export class MovementFireblocksSDK {
       if (fireblocksConfig) {
         validateApiCredentials(
           fireblocksConfig.apiKey,
-          fireblocksConfig.basePath ?? "",
+          fireblocksConfig.apiSecret ?? "",
           vaultAccountId
         );
       }
@@ -78,7 +79,16 @@ export class MovementFireblocksSDK {
         `Failed to initialize services: ${formatErrorMessage(error)}`
       );
     }
-    this.vaultAccountId = vaultAccountId;
+    if (typeof vaultAccountId === "string") {
+      // Trim spaces and ensure only digit characters remain
+      this.vaultAccountId =
+        vaultAccountId
+          .trim()
+          .replace(/^\s+|\s+$/g, "")
+          .replace(/\D/g, "") || vaultAccountId.trim();
+    } else {
+      this.vaultAccountId = vaultAccountId;
+    }
   }
 
   /**
@@ -256,7 +266,7 @@ export class MovementFireblocksSDK {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
     const args: MoveTransactionArguments = {
-      transactionType: "move",
+      transactionType: TransactionType.MOVE,
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,
       movementService: this.movementService,
@@ -309,7 +319,7 @@ export class MovementFireblocksSDK {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
     const args: TokenTransactionArguments = {
-      transactionType: "token",
+      transactionType: TransactionType.TOKEN,
       tokenAsset: tokenType,
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,

@@ -70,7 +70,7 @@ export type GetAllBalancesResponse = {
 };
 
 export type MoveTransactionArguments = {
-  transactionType: "move";
+  transactionType: TransactionType.MOVE;
   movementAddress: string;
   movementPublicKey: string;
   movementService: MovementService;
@@ -85,7 +85,7 @@ export type MoveTransactionArguments = {
 };
 
 export type TokenTransactionArguments = {
-  transactionType: "token";
+  transactionType: TransactionType.TOKEN;
   tokenAsset: string;
   movementAddress: string;
   movementPublicKey: string;

@@ -13,7 +13,6 @@ import {
 import { derivationPath } from "../constants";
 import { formatErrorMessage } from "./errorHandling";
 import * as fs from "fs";
-import * as path from "path";
 
 export const validateApiCredentials = (
   apiKey: string,
@@ -27,11 +26,8 @@ export const validateApiCredentials = (
     throw new Error("API key is not a valid UUID v4.");
   }
 
-  // Validate secret key path is absolute and file exists
-  if (!path.isAbsolute(secretKeyPath)) {
-    throw new Error("Secret key path must be an absolute path.");
-  }
-  if (!fs.existsSync(secretKeyPath)) {
+  // Validate secret key path exists and is a file
+  if (!fs.existsSync(secretKeyPath) || !fs.statSync(secretKeyPath).isFile()) {
     throw new Error(`Secret key file does not exist at path: ${secretKeyPath}`);
   }
 
