@@ -20,16 +20,18 @@ import {
   CreateTransactionArguments,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
+  TokenTransactionArguments,
 } from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
+import { formatErrorMessage } from "./errorHandling";
 
-export function deriveAptosAddress(pubKeyHex: string): string {
+export const deriveAptosAddress = (pubKeyHex: string): string => {
   const clean = pubKeyHex.startsWith("0x") ? pubKeyHex.slice(2) : pubKeyHex;
   const pubBytes = Buffer.from(clean, "hex");
   const withScheme = Buffer.concat([pubBytes, Buffer.from([0x00])]);
   const authHex = sha3_256(withScheme);
   return `0x${authHex}`;
-}
+};
 
 export const serializeTransaction = (
   transaction: SimpleTransaction
@@ -45,9 +47,7 @@ export const serializeTransaction = (
     return signingMessage;
   } catch (error: any) {
     throw new Error(
-      `Failed to serialize transaction: ${
-        error?.message || error?.toString() || "Unknown error"
-      }`
+      `Failed to serialize transaction: ${formatErrorMessage(error)}`
     );
   }
 };
@@ -68,9 +68,7 @@ export const createSenderAuthenticator = (
     return senderAuthenticator;
   } catch (error: any) {
     throw new Error(
-      `Failed to create sender authenticator: ${
-        error?.message || error?.toString() || "Unknown error"
-      }`
+      `Failed to create sender authenticator: ${formatErrorMessage(error)}`
     );
   }
 };
@@ -79,6 +77,7 @@ export const createTransaction = async (
   createTransactionArguments: CreateTransactionArguments
 ): Promise<CommittedTransactionResponse> => {
   const {
+    transactionType,
     movementAddress,
     recipientAddress,
     amount,
@@ -90,17 +89,22 @@ export const createTransaction = async (
     fireblocksService,
     vaultAccountId,
     movementPublicKey,
-    tokenTransfer,
-    tokenAsset,
   } = createTransactionArguments;
+
+  // Narrow type for tokenAsset if present
+  const tokenTransfer = "tokenAsset" in createTransactionArguments;
+  const tokenAsset = tokenTransfer
+    ? (createTransactionArguments as TokenTransactionArguments).tokenAsset
+    : undefined;
   if (!movementAddress) {
     throw new Error("Movement address is not set.");
   }
   const sender: AccountAddressInput = movementAddress;
   const data: InputEntryFunctionData = {
-    function: tokenTransfer
-      ? (createTokenTransactionConstants.function as `${string}::${string}::${string}`)
-      : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
+    function:
+      transactionType === "token"
+        ? (createTokenTransactionConstants.function as `${string}::${string}::${string}`)
+        : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
     typeArguments: tokenTransfer
       ? createTokenTransactionConstants.typeArguments
       : [],
@@ -151,9 +155,7 @@ export const createTransaction = async (
     return response;
   } catch (error: any) {
     throw new Error(
-      `Failed to create move transaction: ${
-        error instanceof Error ? error.message : String(error)
-      }`
+      `Failed to create transaction: ${formatErrorMessage(error)}`
     );
   }
 };

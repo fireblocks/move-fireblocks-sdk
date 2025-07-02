@@ -19,8 +19,16 @@ COPY . .
 # Set environment variable if needed (optional)
 ENV NODE_ENV=production
 
+# Build the TypeScript code
+RUN npm run build
+
+# Build only in production mode
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
+
 # Expose the port your app runs on (adjust as needed)
 EXPOSE 3000
 
-# Command to run your server with ts-node
-CMD ["ts-node", "src/server.ts"]
+# Run the app
+CMD ["npm", "start"]

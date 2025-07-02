@@ -27,16 +27,20 @@ import {
 import { FireblocksService } from "./services/fireblocks.service";
 import { MovementService } from "./services/movement.service";
 import {
-  CreateTransactionArguments,
   FireblocksConfig,
-  GetAccountCoinsDatataArguments,
+  GetAccountCoinsDataArguments,
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
+  MoveTransactionArguments,
+  TokenTransactionArguments,
+  TransactionType,
 } from "./services/types";
 import { getTransactionConstants } from "./constants";
+import { formatErrorMessage } from "./utils/errorHandling";
+import { validateApiCredentials } from "./utils/fireblocks.utils";
 
 export type MovementFireblocksSDKResponse =
   | string
@@ -60,16 +64,31 @@ export class MovementFireblocksSDK {
     fireblocksConfig?: FireblocksConfig
   ) {
     try {
+      // Validate Fireblocks API credentials before initializing services
+      if (fireblocksConfig) {
+        validateApiCredentials(
+          fireblocksConfig.apiKey,
+          fireblocksConfig.apiSecret ?? "",
+          vaultAccountId
+        );
+      }
       this.fireblocksService = new FireblocksService(fireblocksConfig);
       this.movementService = new MovementService();
     } catch (error) {
       throw new Error(
-        `Failed to initialize services: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to initialize services: ${formatErrorMessage(error)}`
       );
     }
-    this.vaultAccountId = vaultAccountId;
+    if (typeof vaultAccountId === "string") {
+      // Trim spaces and ensure only digit characters remain
+      this.vaultAccountId =
+        vaultAccountId
+          .trim()
+          .replace(/^\s+|\s+$/g, "")
+          .replace(/\D/g, "") || vaultAccountId.trim();
+    } else {
+      this.vaultAccountId = vaultAccountId;
+    }
   }
 
   /**
@@ -80,10 +99,10 @@ export class MovementFireblocksSDK {
    * @throws Will throw an error if the instance creation fails.
    */
 
-  public static async create(
+  public static create = async (
     vaultAccountId: string | number,
     fireblocksConfig?: FireblocksConfig
-  ): Promise<MovementFireblocksSDK> {
+  ): Promise<MovementFireblocksSDK> => {
     try {
       const instance = new MovementFireblocksSDK(
         vaultAccountId,
@@ -98,17 +117,16 @@ export class MovementFireblocksSDK {
       return instance;
     } catch (error) {
       throw new Error(
-        `Failed to create MovementFireblocksSDK instance: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create MovementFireblocksSDK instance: ${formatErrorMessage(
+          error
+        )}`
       );
     }
-  }
+  };
 
   /**
    * Retrieves the Movement account public key associated with the Fireblocks vault account.
-   * @returns A Promise that resolves to the Movement account address.
-   * @throws Will throw an error if the address is not set.
+   * @returns The Movement account public key or empty string if not set.
    */
   public getMovementAccountPublicKey = (): string => {
     return this.movementPublicKey || "";
@@ -116,8 +134,7 @@ export class MovementFireblocksSDK {
 
   /**
    * Retrieves the Movement account address associated with the Fireblocks vault account.
-   * @returns A Promise that resolves to the Movement account address.
-   * @throws Will throw an error if the address is not set.
+   * @returns The Movement account address or empty string if not set.
    */
   public getMovementAccountAddress = (): string => {
     return this.movementAddress || "";
@@ -139,11 +156,7 @@ export class MovementFireblocksSDK {
     try {
       return await this.movementService.getMoveBalance(args);
     } catch (error) {
-      throw new Error(
-        `Failed to get balance: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -163,11 +176,7 @@ export class MovementFireblocksSDK {
     try {
       return await this.movementService.getBalances(args);
     } catch (error) {
-      throw new Error(
-        `Failed to get balances: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+      throw new Error(`Failed to get balances: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -208,9 +217,7 @@ export class MovementFireblocksSDK {
       return txs;
     } catch (error) {
       throw new Error(
-        `Failed to get transaction history: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to get transaction history: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -226,7 +233,7 @@ export class MovementFireblocksSDK {
       if (!this.movementAddress) {
         throw new Error("Movement address is not set.");
       }
-      const args: GetAccountCoinsDatataArguments = {
+      const args: GetAccountCoinsDataArguments = {
         accountAddress: this.movementAddress,
       };
       return await this.movementService.getAccountCoinsData(args);
@@ -258,7 +265,8 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
-    const args: CreateTransactionArguments = {
+    const args: MoveTransactionArguments = {
+      transactionType: TransactionType.MOVE,
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,
       movementService: this.movementService,
@@ -276,9 +284,7 @@ export class MovementFireblocksSDK {
       return response;
     } catch (error: any) {
       throw new Error(
-        `Failed to create move transaction: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create move transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -312,7 +318,9 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
-    const args: CreateTransactionArguments = {
+    const args: TokenTransactionArguments = {
+      transactionType: TransactionType.TOKEN,
+      tokenAsset: tokenType,
       movementAddress: this.movementAddress,
       movementPublicKey: this.movementPublicKey,
       movementService: this.movementService,
@@ -324,17 +332,13 @@ export class MovementFireblocksSDK {
       gasUnitPrice,
       expireTimestamp,
       accountSequenceNumber,
-      tokenTransfer: true,
-      tokenAsset: tokenType,
     };
     try {
       const response = await this.movementService.createTransaction(args);
       return response;
     } catch (error) {
       throw new Error(
-        `Failed to create move transaction: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+        `Failed to create token transaction: ${formatErrorMessage(error)}`
       );
     }
   };

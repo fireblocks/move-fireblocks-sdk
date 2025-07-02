@@ -19,6 +19,7 @@ import {
 } from "../utils/fireblocks.utils";
 import { deriveAptosAddress } from "../utils/movement.utils";
 import { FireblocksConfig } from "./types";
+import { formatErrorMessage } from "../utils/errorHandling";
 
 const secretKeyPath = process.env.FIREBLOCKS_SECRET_KEY_PATH || "";
 const basePath = process.env.FIREBLOCKS_BASE_PATH || BasePath.US;
@@ -58,9 +59,9 @@ export class FireblocksService {
   /**
    * @returns The initialized Fireblocks SDK instance of this Service class.
    */
-  public getFireblocksSDK(): Fireblocks {
+  public getFireblocksSDK = (): Fireblocks => {
     return this.fireblocksSDK;
-  }
+  };
 
   /**
    * Retrieves the Movement address associated with a given Fireblocks vault ID.
@@ -105,7 +106,9 @@ export class FireblocksService {
       return movementAddress;
     } catch (error: any) {
       throw new Error(
-        `Error getting movement address by vault ID: ${error.message}`
+        `Failed to get movement address by vault ID: ${formatErrorMessage(
+          error
+        )}`
       );
     }
   };
@@ -137,7 +140,7 @@ export class FireblocksService {
       return publicKey;
     } catch (error: any) {
       throw new Error(
-        `Error getting movement address by vault ID: ${error.message}`
+        `Failed to get public key by vault ID: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -169,7 +172,7 @@ export class FireblocksService {
       return signature;
     } catch (error: any) {
       throw new Error(
-        `Error signing transaction: ${error.message || error.toString()}`
+        `Failed to sign transaction: ${formatErrorMessage(error)}`
       );
     }
   };

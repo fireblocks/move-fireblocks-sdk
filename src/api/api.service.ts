@@ -2,6 +2,7 @@ import { BasePath, TransactionResponse } from "@fireblocks/ts-sdk";
 import { SdkManager } from "../pool/SdkManager";
 import { ActionType, ApiServiceConfig } from "../pool/types";
 import { MovementFireblocksSDKResponse } from "../MovementFireblocksSDK";
+import { formatErrorMessage } from "../utils/errorHandling";
 
 export class MovementFireblocksApiService {
   private sdkManager: SdkManager;
@@ -20,11 +21,11 @@ export class MovementFireblocksApiService {
   /**
    * Execute an action using the appropriate SDK method
    */
-  public async executeAction(
+  public executeAction = async (
     vaultAccountId: string,
     actionType: ActionType,
     params: any
-  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> {
+  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> => {
     let sdk;
     try {
       // Get SDK instance from the pool
@@ -79,7 +80,7 @@ export class MovementFireblocksApiService {
         default:
           throw new Error(
             `InvalidType :
-            Unknown transaction type: ${actionType}`
+            Unknown action type: ${actionType}`
           );
       }
 
@@ -89,26 +90,25 @@ export class MovementFireblocksApiService {
         `Error executing ${actionType} for vault ${vaultAccountId}:`,
         error
       );
-      throw error;
+      throw new Error(`Failed to execute action: ${formatErrorMessage(error)}`);
     } finally {
       // Always release the SDK back to the pool
       if (sdk) {
         this.sdkManager.releaseSdk(vaultAccountId);
       }
     }
-  }
-
+  };
   /**
    * Get metrics about the SDK pool
    */
-  public getPoolMetrics() {
+  public getPoolMetrics = () => {
     return this.sdkManager.getMetrics();
-  }
+  };
 
   /**
    * Shut down the API service and all SDK instances
    */
-  public async shutdown(): Promise<void> {
+  public shutdown = async (): Promise<void> => {
     return this.sdkManager.shutdown();
-  }
+  };
 }

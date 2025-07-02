@@ -32,15 +32,14 @@ export type WaitForTransactionArguments = {
   options?: WaitForTransactionOptions;
 };
 
-export type GetAccountCoinsDatataArguments = {
+export type AccountInfoBase = {
   accountAddress: AccountAddressInput;
   minimumLedgerVersion?: AnyNumber;
 };
 
-export type GetBalanceArguments = {
-  accountAddress: AccountAddressInput;
-  minimumLedgerVersion?: AnyNumber;
-};
+export type GetAccountCoinsDataArguments = AccountInfoBase;
+
+export type GetBalanceArguments = AccountInfoBase;
 
 export type GetMoveBalanceResponse = {
   moveCoins: {
@@ -70,7 +69,8 @@ export type GetAllBalancesResponse = {
   symbol: string;
 };
 
-export type CreateTransactionArguments = {
+export type MoveTransactionArguments = {
+  transactionType: TransactionType.MOVE;
   movementAddress: string;
   movementPublicKey: string;
   movementService: MovementService;
@@ -82,9 +82,27 @@ export type CreateTransactionArguments = {
   gasUnitPrice?: number;
   expireTimestamp?: number;
   accountSequenceNumber?: AnyNumber;
-  tokenTransfer?: boolean;
-  tokenAsset?: string;
 };
+
+export type TokenTransactionArguments = {
+  transactionType: TransactionType.TOKEN;
+  tokenAsset: string;
+  movementAddress: string;
+  movementPublicKey: string;
+  movementService: MovementService;
+  fireblocksService: FireblocksService;
+  vaultAccountId: string | number;
+  recipientAddress: string;
+  amount: number;
+  maxGasAmount?: number;
+  gasUnitPrice?: number;
+  expireTimestamp?: number;
+  accountSequenceNumber?: AnyNumber;
+};
+
+export type CreateTransactionArguments =
+  | MoveTransactionArguments
+  | TokenTransactionArguments;
 
 export type FireblocksConfig = {
   apiKey: string;
@@ -102,3 +120,8 @@ export type GetTransactionHistoryResponse = {
   transaction_details: TransactionResponse | undefined;
   error?: string;
 };
+
+export enum TransactionType {
+  MOVE = "move",
+  TOKEN = "token",
+}

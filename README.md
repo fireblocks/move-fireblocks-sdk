@@ -51,7 +51,8 @@ npm run dev
 ```bash
 cp .env.example .env  # or create your .env manually
 # Make sure your Fireblocks secret key is in ./secrets/fireblocks_secret.key
-docker-compose up --build
+docker-compose up --build #(Dev Mode)
+docker-compose -f docker-compose.yml up --build #(Prod Mode)
 ```
 
 > API will run on port `3000` by default. Change via `PORT` in `.env`.

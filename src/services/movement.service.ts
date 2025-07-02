@@ -19,7 +19,7 @@ import {
 import {
   BuildTransactionArguments,
   CreateTransactionArguments,
-  GetAccountCoinsDatataArguments,
+  GetAccountCoinsDataArguments,
   GetAllBalancesResponse,
   GetBalanceArguments,
   GetMoveBalanceResponse,
@@ -35,6 +35,7 @@ import {
   serializeTransaction,
 } from "../utils/movement.utils";
 import { AptosSDKConstants, getTransactionConstants } from "../constants";
+import { formatErrorMessage } from "../utils/errorHandling";
 
 const fullnodeURL =
   process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
@@ -67,9 +68,9 @@ export class MovementService {
    * @returns A Promise that resolves to a SimpleTransaction object.
    * @throws Will throw an error if the transaction building fails.
    */
-  public async buildTransaction(
+  public buildTransaction = async (
     builtTransactionArguments: BuildTransactionArguments
-  ): Promise<SimpleTransaction> {
+  ): Promise<SimpleTransaction> => {
     try {
       const { sender, data, options, withFeePayer } = builtTransactionArguments;
 
@@ -83,12 +84,10 @@ export class MovementService {
       return transaction;
     } catch (error: any) {
       throw new Error(
-        `Failed to build transaction: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to build transaction: ${formatErrorMessage(error)}`
       );
     }
-  }
+  };
 
   /**
    * Serializes a transaction into a byte array and prefixes
@@ -104,9 +103,7 @@ export class MovementService {
       return serializeTransaction(transaction);
     } catch (error: any) {
       throw new Error(
-        `Failed to serialize transaction: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to serialize transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -126,9 +123,7 @@ export class MovementService {
       return createSenderAuthenticator(rawPubKey, signatureBytes);
     } catch (error) {
       throw new Error(
-        `Failed to create sender authenticator: ${
-          (error as Error)?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to create sender authenticator: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -155,9 +150,7 @@ export class MovementService {
       return response;
     } catch (error: any) {
       throw new Error(
-        `Failed to submit transaction: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to submit transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -182,9 +175,7 @@ export class MovementService {
       return response;
     } catch (error: any) {
       throw new Error(
-        `Failed to wait for transaction: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to wait for transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -196,7 +187,7 @@ export class MovementService {
    * @throws Will throw an error if fetching account coins data fails.
    */
   public getAccountCoinsData = async (
-    getAccountCoinsDatataArguments: GetAccountCoinsDatataArguments
+    getAccountCoinsDatataArguments: GetAccountCoinsDataArguments
   ): Promise<GetAccountCoinsDataResponse> => {
     const { accountAddress, minimumLedgerVersion } =
       getAccountCoinsDatataArguments;
@@ -209,11 +200,7 @@ export class MovementService {
 
       return response;
     } catch (error: any) {
-      throw new Error(
-        `Failed to get coins data: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
-      );
+      throw new Error(`Failed to get coins data: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -252,11 +239,7 @@ export class MovementService {
 
       return coins;
     } catch (error: any) {
-      throw new Error(
-        `Failed to get balances: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
-      );
+      throw new Error(`Failed to get balances: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -308,11 +291,7 @@ export class MovementService {
         total,
       };
     } catch (error: any) {
-      throw new Error(
-        `Failed to get balance: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
-      );
+      throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -386,12 +365,10 @@ export class MovementService {
         }
       }
       return transactions;
-    } catch (err: any) {
-      console.error("Error in fetchTransactions:", err);
+    } catch (error: any) {
+      console.error("Error in fetchTransactions:", error);
       throw new Error(
-        `Failed to get transaction history: ${
-          err.message || err.toString() || "Unknown error"
-        }`
+        `Failed to get transaction history: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -411,9 +388,7 @@ export class MovementService {
       return response;
     } catch (error: any) {
       throw new Error(
-        `Failed to create transaction: ${
-          error?.message || error?.toString() || "Unknown error"
-        }`
+        `Failed to create transaction: ${formatErrorMessage(error)}`
       );
     }
   };
