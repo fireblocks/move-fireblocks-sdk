@@ -183,7 +183,7 @@ export const rawSign = async (
 
 export const checkSignature = (
   rawSignature: SignedMessageSignature | undefined
-): Buffer<ArrayBuffer> => {
+): Buffer => {
   if (!rawSignature?.fullSig) {
     throw new Error("No signature returned from rawSign()");
   }

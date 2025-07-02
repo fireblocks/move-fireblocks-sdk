@@ -98,7 +98,7 @@ export class MovementService {
    */
   public serializeTransaction = (
     transaction: SimpleTransaction
-  ): Uint8Array<ArrayBufferLike> => {
+  ): Uint8Array => {
     try {
       return serializeTransaction(transaction);
     } catch (error: any) {
