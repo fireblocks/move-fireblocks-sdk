@@ -7,14 +7,18 @@
  * This service abstracts the complexity of direct SDK usage and provides utility methods for common blockchain operations.
  */
 import {
+  AccountAddress,
+  AccountAddressInput,
   AccountAuthenticator,
   Aptos,
   AptosConfig,
   CommittedTransactionResponse,
+  Ed25519PublicKey,
   GetAccountCoinsDataResponse,
   Network,
   PendingTransactionResponse,
   SimpleTransaction,
+  UserTransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import {
   BuildTransactionArguments,
@@ -36,6 +40,7 @@ import {
 } from "../utils/movement.utils";
 import { AptosSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
+import { StringDecoder } from "string_decoder";
 
 const fullnodeURL =
   process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
@@ -104,6 +109,29 @@ export class MovementService {
     } catch (error: any) {
       throw new Error(
         `Failed to serialize transaction: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
+   * Simulates a transaction using the Movement SDK.
+   * @param transaction - The {@link SimpleTransaction} object to simulate.
+   * @param pubKey - The public key of the sender.
+   * @returns A Promise that resolves to a UserTransactionResponse object.
+   * @throws Will throw an error if the simulation fails.
+   */
+  public simulateTransaction = async (
+    transaction: SimpleTransaction,
+    pubKey: Ed25519PublicKey
+  ): Promise<UserTransactionResponse> => {
+    try {
+      const [response] = await this.MovementSDK.transaction.simulate.simple({
+        transaction,
+      });
+      return response;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to simulate transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -389,6 +417,33 @@ export class MovementService {
     } catch (error: any) {
       throw new Error(
         `Failed to create transaction: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
+   * Checks if the address has an existing account on the Movement blockchain.
+   * @param accountAddress- The address to check for account existence.
+   * @returns A Promise of boolean, true if the account exists and false otherwise.
+   * @throws Will throw an error if the check fails.
+   */
+  public checkAccountExists = async (
+    accountAddress: AccountAddressInput
+  ): Promise<boolean> => {
+    try {
+      const result = await this.MovementSDK.getAccountResources({
+        accountAddress,
+      });
+      if (result) {
+        return true;
+      }
+    } catch (error: any) {
+      const code = error.data?.error_code ?? error.error_code;
+      if (code === "account_not_found") {
+        return false;
+      }
+      throw new Error(
+        `Failed to check account existence: ${formatErrorMessage(error)}`
       );
     }
   };

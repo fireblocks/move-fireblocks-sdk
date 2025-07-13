@@ -29,6 +29,7 @@ export enum ActionType {
   GET_ACCOUNT_COINS_DATA = "getAccountCoinsData",
   GET_ACCOUNT_ADDRESS = "getMovementAccountAddress",
   GET_ACCOUNT_PUBLIC_KEY = "getMovementAccountPublicKey",
+  CHECK_ACCOUNT_EXISTS = "checkAccountExists",
 }
 
 export interface SdkManagerMetrics {

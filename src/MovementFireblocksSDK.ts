@@ -181,6 +181,27 @@ export class MovementFireblocksSDK {
   };
 
   /**
+   * Checks if the Movement account exists for the current movement address.
+   *
+   * @returns A promise that resolves to a boolean indicating whether the account exists.
+   * @throws {Error} If the movement address is not set or if the account existence check fails.
+   */
+
+  public checkAccountExists = async (): Promise<{ exists: boolean }> => {
+    if (!this.movementAddress) {
+      throw new Error("Movement address is not set.");
+    }
+    try {
+      const result = await this.movementService.checkAccountExists(
+        this.movementAddress
+      );
+      return { exists: result };
+    } catch (error) {
+      throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
+    }
+  };
+
+  /**
    * Retrieves the transaction history for the current movement address.
    *
    * @param limit - The maximum number of transactions to return (default is 10).

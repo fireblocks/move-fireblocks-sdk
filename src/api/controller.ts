@@ -51,6 +51,21 @@ export const getPublicKey: Handler = async (req, res, next) => {
   }
 };
 
+// GET /:vaultId/checkAccountExists
+export const checkAccountExists: Handler = async (req, res, next) => {
+  try {
+    const { vaultId } = req.params;
+    const result = await apiService.executeAction(
+      vaultId,
+      ActionType.CHECK_ACCOUNT_EXISTS,
+      {}
+    );
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // GET /:vaultId/balance
 export const getBalance: Handler = async (req, res, next) => {
   try {

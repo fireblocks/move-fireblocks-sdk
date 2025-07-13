@@ -77,6 +77,9 @@ export class MovementFireblocksApiService {
         case ActionType.GET_ACCOUNT_PUBLIC_KEY:
           result = await sdk.getMovementAccountPublicKey();
           break;
+        case ActionType.CHECK_ACCOUNT_EXISTS:
+          result = await sdk.checkAccountExists();
+          break;
         default:
           throw new Error(
             `InvalidType :

@@ -74,6 +74,36 @@ router.get("/:vaultId/address", validateVaultId, controller.getAddress);
  */
 router.get("/:vaultId/publicKey", validateVaultId, controller.getPublicKey);
 
+/**
+ * @openapi
+ * /{vaultId}/checkAccountExists:
+ *   get:
+ *     summary: Check if account exists
+ *     description: Checks wether or not an active Movement account exists for the vault account id.
+ *     parameters:
+ *       - $ref: '#/components/parameters/vaultId'
+ *     responses:
+ *       200:
+ *         description: Boolean indicating if the account exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                  exists:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: vaultId missing
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/:vaultId/checkAccountExists",
+  validateVaultId,
+  controller.checkAccountExists
+);
+
 // Balance endpoints
 
 /**
