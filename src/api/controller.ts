@@ -145,6 +145,7 @@ export const createMoveTransaction: Handler = async (req, res, next) => {
       gasUnitPrice,
       expireTimestamp,
       accountSequenceNumber,
+      grossTransaction,
     } = req.body;
     if (!recipientAddress || !amount) {
       res.status(400).json({
@@ -162,6 +163,7 @@ export const createMoveTransaction: Handler = async (req, res, next) => {
         gasUnitPrice,
         expireTimestamp,
         accountSequenceNumber,
+        grossTransaction,
       }
     );
     res.json(tx);
@@ -182,6 +184,7 @@ export const createTokenTransaction: Handler = async (req, res, next) => {
       gasUnitPrice,
       expireTimestamp,
       accountSequenceNumber,
+      grossTransaction,
     } = req.body;
     if (!recipientAddress || !amount || !tokenType) {
       res.status(400).json({
@@ -201,6 +204,7 @@ export const createTokenTransaction: Handler = async (req, res, next) => {
         gasUnitPrice,
         expireTimestamp,
         accountSequenceNumber,
+        grossTransaction,
       }
     );
     res.json(tx);

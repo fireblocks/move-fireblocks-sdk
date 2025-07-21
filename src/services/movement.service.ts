@@ -41,6 +41,7 @@ import {
 import { AptosSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
 import { StringDecoder } from "string_decoder";
+import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 
 const fullnodeURL =
   process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
@@ -126,6 +127,7 @@ export class MovementService {
   ): Promise<UserTransactionResponse> => {
     try {
       const [response] = await this.MovementSDK.transaction.simulate.simple({
+        signerPublicKey: pubKey,
         transaction,
       });
       return response;
@@ -409,10 +411,14 @@ export class MovementService {
    * @throws Will throw an error if the transaction creation fails.
    */
   public createTransaction = async (
-    createTransactionArguments: CreateTransactionArguments
+    createTransactionArguments: CreateTransactionArguments,
+    grossTransaction?: boolean
   ): Promise<CommittedTransactionResponse> => {
     try {
-      const response = await createTransaction(createTransactionArguments);
+      const response = await createTransaction(
+        createTransactionArguments,
+        grossTransaction
+      );
       return response;
     } catch (error: any) {
       throw new Error(

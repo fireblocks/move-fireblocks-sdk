@@ -41,6 +41,7 @@ import {
 import { getTransactionConstants } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
 import { validateApiCredentials } from "./utils/fireblocks.utils";
+import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 
 export type MovementFireblocksSDKResponse =
   | string
@@ -277,7 +278,8 @@ export class MovementFireblocksSDK {
     maxGasAmount?: number,
     gasUnitPrice?: number,
     expireTimestamp?: number,
-    accountSequenceNumber?: AnyNumber
+    accountSequenceNumber?: AnyNumber,
+    grossTransaction?: boolean
   ): Promise<CommittedTransactionResponse> => {
     if (
       !this.movementAddress ||
@@ -301,7 +303,10 @@ export class MovementFireblocksSDK {
       accountSequenceNumber,
     };
     try {
-      const response = await this.movementService.createTransaction(args);
+      const response = await this.movementService.createTransaction(
+        args,
+        grossTransaction
+      );
       return response;
     } catch (error: any) {
       throw new Error(
@@ -330,7 +335,8 @@ export class MovementFireblocksSDK {
     maxGasAmount?: number,
     gasUnitPrice?: number,
     expireTimestamp?: number,
-    accountSequenceNumber?: AnyNumber
+    accountSequenceNumber?: AnyNumber,
+    grossTransaction?: boolean
   ): Promise<CommittedTransactionResponse> => {
     if (
       !this.movementAddress ||
@@ -355,7 +361,10 @@ export class MovementFireblocksSDK {
       accountSequenceNumber,
     };
     try {
-      const response = await this.movementService.createTransaction(args);
+      const response = await this.movementService.createTransaction(
+        args,
+        grossTransaction
+      );
       return response;
     } catch (error) {
       throw new Error(

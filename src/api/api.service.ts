@@ -41,7 +41,8 @@ export class MovementFireblocksApiService {
             params.maxGasAmount,
             params.gasUnitPrice,
             params.expireTimestamp,
-            params.accountSequenceNumber
+            params.accountSequenceNumber,
+            params.grossTransaction
           );
           break;
         case ActionType.CREATE_TOKEN_TRANSACTION:
@@ -52,7 +53,8 @@ export class MovementFireblocksApiService {
             params.maxGasAmount,
             params.gasUnitPrice,
             params.expireTimestamp,
-            params.accountSequenceNumber
+            params.accountSequenceNumber,
+            params.grossTransaction
           );
           break;
         case ActionType.GET_BALANCE:

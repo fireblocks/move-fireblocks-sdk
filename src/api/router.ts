@@ -239,6 +239,9 @@ router.get(
  *               accountSequenceNumber:
  *                 type: number
  *                 example: 42
+ *               grossTransaction:
+ *                 type: boolean
+ *                 example: false
  *     responses:
  *       200:
  *         description: Transaction created successfully
