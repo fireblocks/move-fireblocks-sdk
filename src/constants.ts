@@ -5,6 +5,8 @@ export const derivationPath = {
   addressIndex: 0,
 };
 
+export const moveDecimalPlaces = 8;
+
 export const createMoveTransactionConstants = {
   function: "0x1::aptos_account::transfer",
 };

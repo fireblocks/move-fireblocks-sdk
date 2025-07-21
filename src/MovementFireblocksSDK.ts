@@ -38,7 +38,7 @@ import {
   TokenTransactionArguments,
   TransactionType,
 } from "./services/types";
-import { getTransactionConstants } from "./constants";
+import { getTransactionConstants, moveDecimalPlaces } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
 import { validateApiCredentials } from "./utils/fireblocks.utils";
 import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
@@ -275,6 +275,7 @@ export class MovementFireblocksSDK {
   public createMoveTransaction = async (
     recipientAddress: string,
     amount: number,
+    inOctas: boolean = true,
     maxGasAmount?: number,
     gasUnitPrice?: number,
     expireTimestamp?: number,
@@ -288,6 +289,12 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
+
+    if (!inOctas) {
+      // Convert amount to octas if not already in octas
+      amount = amount * Math.pow(10, moveDecimalPlaces); // 1 MOVE = 10^8 octas
+    }
+
     const args: MoveTransactionArguments = {
       transactionType: TransactionType.MOVE,
       movementAddress: this.movementAddress,
