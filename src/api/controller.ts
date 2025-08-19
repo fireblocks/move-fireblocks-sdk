@@ -51,21 +51,6 @@ export const getPublicKey: Handler = async (req, res, next) => {
   }
 };
 
-// GET /:vaultId/checkAccountExists
-export const checkAccountExists: Handler = async (req, res, next) => {
-  try {
-    const { vaultId } = req.params;
-    const result = await apiService.executeAction(
-      vaultId,
-      ActionType.CHECK_ACCOUNT_EXISTS,
-      {}
-    );
-    res.json(result);
-  } catch (err) {
-    next(err);
-  }
-};
-
 // GET /:vaultId/balance
 export const getBalance: Handler = async (req, res, next) => {
   try {
@@ -141,6 +126,7 @@ export const createMoveTransaction: Handler = async (req, res, next) => {
     const {
       recipientAddress,
       amount,
+      inOctas,
       maxGasAmount,
       gasUnitPrice,
       expireTimestamp,
@@ -159,6 +145,7 @@ export const createMoveTransaction: Handler = async (req, res, next) => {
       {
         recipientAddress,
         amount,
+        inOctas,
         maxGasAmount,
         gasUnitPrice,
         expireTimestamp,
@@ -179,6 +166,7 @@ export const createTokenTransaction: Handler = async (req, res, next) => {
     const {
       recipientAddress,
       amount,
+      inOctas,
       tokenType,
       maxGasAmount,
       gasUnitPrice,
@@ -199,6 +187,7 @@ export const createTokenTransaction: Handler = async (req, res, next) => {
       {
         recipientAddress,
         amount,
+        inOctas,
         tokenType,
         maxGasAmount,
         gasUnitPrice,

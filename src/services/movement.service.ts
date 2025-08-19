@@ -7,7 +7,6 @@
  * This service abstracts the complexity of direct SDK usage and provides utility methods for common blockchain operations.
  */
 import {
-  AccountAddress,
   AccountAddressInput,
   AccountAuthenticator,
   Aptos,
@@ -60,12 +59,7 @@ export class MovementService {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
       fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
-      // indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
-      clientConfig: {
-        HEADERS: {
-          Authorization: `Bearer Fireblockse4lC3aUUOfgjkhfgiu7fughykfjhgyDWttdruGBis4HhJAScAcsqxccZ`,
-        },
-      },
+      indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
     });
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
@@ -113,30 +107,6 @@ export class MovementService {
     } catch (error: any) {
       throw new Error(
         `Failed to serialize transaction: ${formatErrorMessage(error)}`
-      );
-    }
-  };
-
-  /**
-   * Simulates a transaction using the Movement SDK.
-   * @param transaction - The {@link SimpleTransaction} object to simulate.
-   * @param pubKey - The public key of the sender.
-   * @returns A Promise that resolves to a UserTransactionResponse object.
-   * @throws Will throw an error if the simulation fails.
-   */
-  public simulateTransaction = async (
-    transaction: SimpleTransaction,
-    pubKey: Ed25519PublicKey
-  ): Promise<UserTransactionResponse> => {
-    try {
-      const [response] = await this.MovementSDK.transaction.simulate.simple({
-        signerPublicKey: pubKey,
-        transaction,
-      });
-      return response;
-    } catch (error: any) {
-      throw new Error(
-        `Failed to simulate transaction: ${formatErrorMessage(error)}`
       );
     }
   };
@@ -291,8 +261,18 @@ export class MovementService {
     try {
       const response = await this.MovementSDK.getAccountCoinsData({
         accountAddress,
-        minimumLedgerVersion,
       });
+      if (!Array.isArray(response)) {
+        throw new Error("Invalid response format");
+      }
+
+      if (response.length === 0) {
+        return {
+          moveCoins: [],
+          total_in_octas: 0,
+          total: 0,
+        };
+      }
 
       const moveCoins = response
         .filter((coin) => coin.metadata?.symbol === "MOVE")
@@ -402,6 +382,30 @@ export class MovementService {
       console.error("Error in fetchTransactions:", error);
       throw new Error(
         `Failed to get transaction history: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
+   * Simulates a transaction using the Movement SDK.
+   * @param transaction - The {@link SimpleTransaction} object to simulate.
+   * @param pubKey - The public key of the sender.
+   * @returns A Promise that resolves to a UserTransactionResponse object.
+   * @throws Will throw an error if the simulation fails.
+   */
+  public simulateTransaction = async (
+    transaction: SimpleTransaction,
+    pubKey: Ed25519PublicKey
+  ): Promise<UserTransactionResponse> => {
+    try {
+      const [response] = await this.MovementSDK.transaction.simulate.simple({
+        signerPublicKey: pubKey,
+        transaction,
+      });
+      return response;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to simulate transaction: ${formatErrorMessage(error)}`
       );
     }
   };

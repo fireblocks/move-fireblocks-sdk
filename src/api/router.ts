@@ -74,36 +74,6 @@ router.get("/:vaultId/address", validateVaultId, controller.getAddress);
  */
 router.get("/:vaultId/publicKey", validateVaultId, controller.getPublicKey);
 
-/**
- * @openapi
- * /{vaultId}/checkAccountExists:
- *   get:
- *     summary: Check if account exists
- *     description: Checks wether or not an active Movement account exists for the vault account id.
- *     parameters:
- *       - $ref: '#/components/parameters/vaultId'
- *     responses:
- *       200:
- *         description: Boolean indicating if the account exists
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                  exists:
- *                   type: boolean
- *                   example: true
- *       400:
- *         description: vaultId missing
- *       500:
- *         description: Internal server error
- */
-router.get(
-  "/:vaultId/checkAccountExists",
-  validateVaultId,
-  controller.checkAccountExists
-);
-
 // Balance endpoints
 
 /**
@@ -227,6 +197,9 @@ router.get(
  *               amount:
  *                 type: number
  *                 example: 1.5
+ *               inOctas:
+ *                 type: boolean
+ *                 example: true
  *               maxGasAmount:
  *                 type: number
  *                 example: 1000
@@ -241,7 +214,7 @@ router.get(
  *                 example: 42
  *               grossTransaction:
  *                 type: boolean
- *                 example: false
+ *                 example: true
  *     responses:
  *       200:
  *         description: Transaction created successfully
@@ -278,6 +251,9 @@ router.post(
  *               amount:
  *                 type: number
  *                 example: 10
+ *               inOctas:
+ *                 type: boolean
+ *                 example: true
  *               tokenType:
  *                 type: string
  *                 example: '0x1::aptos_coin::AptosCoin'

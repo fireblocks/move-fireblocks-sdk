@@ -25,7 +25,7 @@ export class MovementFireblocksApiService {
     vaultAccountId: string,
     actionType: ActionType,
     params: any
-  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> => {
+  ): Promise<MovementFireblocksSDKResponse | TransactionResponse | boolean> => {
     let sdk;
     try {
       // Get SDK instance from the pool
@@ -38,6 +38,7 @@ export class MovementFireblocksApiService {
           result = await sdk.createMoveTransaction(
             params.recipientAddress,
             params.amount,
+            params.inOctas,
             params.maxGasAmount,
             params.gasUnitPrice,
             params.expireTimestamp,
@@ -49,12 +50,12 @@ export class MovementFireblocksApiService {
           result = await sdk.createTokenTransaction(
             params.recipientAddress,
             params.amount,
+            params.inOctas,
             params.tokenType,
             params.maxGasAmount,
             params.gasUnitPrice,
             params.expireTimestamp,
-            params.accountSequenceNumber,
-            params.grossTransaction
+            params.accountSequenceNumber
           );
           break;
         case ActionType.GET_BALANCE:

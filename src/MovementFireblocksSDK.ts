@@ -141,6 +141,29 @@ export class MovementFireblocksSDK {
   };
 
   /**
+   * Checks if the Movement account exists for the current movement address.
+   *
+   * @returns A promise that resolves to a boolean indicating whether the account exists.
+   * @throws {Error} If the movement address is not set or if the account existence check fails.
+   */
+
+  public checkAccountExists = async (): Promise<{ exists: boolean }> => {
+    if (!this.movementAddress) {
+      throw new Error("Movement address is not set.");
+    }
+    try {
+      const result = await this.movementService.checkAccountExists(
+        this.movementAddress
+      );
+      return { exists: result };
+    } catch (error) {
+      throw new Error(
+        `Failed to check account existence: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
    * Retrieves the MOVE balance for the current movement address.
    *
    * @returns A promise that resolves to a {GetMoveBalanceResponse} containing the MOVE balance information.
@@ -154,6 +177,10 @@ export class MovementFireblocksSDK {
       accountAddress: this.movementAddress,
     };
     try {
+      console.log(
+        "In MovementFireblocksSDK.ts - Going to get balance for address:",
+        this.movementAddress
+      );
       return await this.movementService.getMoveBalance(args);
     } catch (error) {
       throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
@@ -177,27 +204,6 @@ export class MovementFireblocksSDK {
       return await this.movementService.getBalances(args);
     } catch (error) {
       throw new Error(`Failed to get balances: ${formatErrorMessage(error)}`);
-    }
-  };
-
-  /**
-   * Checks if the Movement account exists for the current movement address.
-   *
-   * @returns A promise that resolves to a boolean indicating whether the account exists.
-   * @throws {Error} If the movement address is not set or if the account existence check fails.
-   */
-
-  public checkAccountExists = async (): Promise<{ exists: boolean }> => {
-    if (!this.movementAddress) {
-      throw new Error("Movement address is not set.");
-    }
-    try {
-      const result = await this.movementService.checkAccountExists(
-        this.movementAddress
-      );
-      return { exists: result };
-    } catch (error) {
-      throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
     }
   };
 
@@ -292,6 +298,11 @@ export class MovementFireblocksSDK {
     if (!inOctas) {
       // Convert amount to octas if not already in octas
       amount = amount * Math.pow(10, moveDecimalPlaces); // 1 MOVE = 10^8 octas
+      console.log(
+        `Converted amount to octas: ${amount} (from ${
+          amount / Math.pow(10, moveDecimalPlaces)
+        } MOVE)`
+      );
     }
 
     const args: MoveTransactionArguments = {
@@ -337,12 +348,12 @@ export class MovementFireblocksSDK {
   public createTokenTransaction = async (
     recipientAddress: string,
     amount: number,
+    inOctas: boolean = true,
     tokenType: string,
     maxGasAmount?: number,
     gasUnitPrice?: number,
     expireTimestamp?: number,
-    accountSequenceNumber?: AnyNumber,
-    grossTransaction?: boolean
+    accountSequenceNumber?: AnyNumber
   ): Promise<CommittedTransactionResponse> => {
     if (
       !this.movementAddress ||
@@ -351,6 +362,30 @@ export class MovementFireblocksSDK {
     ) {
       throw new Error("Address, Public Key or Vault ID are not set");
     }
+
+    const balances = await this.getBalances();
+    console.log("In createTokenTransaction - Current balances:", balances);
+    console.log(`Token type: ${tokenType}`);
+    const decimals = balances.find(
+      (coin) => coin.asset_type === tokenType
+    )?.decimals;
+
+    if (!decimals) {
+      throw new Error(
+        `Token type ${tokenType} not found in account coins data.`
+      );
+    }
+
+    if (!inOctas) {
+      // Convert amount to octas if not already in octas
+      amount = amount * Math.pow(10, decimals);
+      console.log(
+        `Converted amount to octas: ${amount} (from ${
+          amount / Math.pow(10, decimals)
+        } MOVE)`
+      );
+    }
+
     const args: TokenTransactionArguments = {
       transactionType: TransactionType.TOKEN,
       tokenAsset: tokenType,
@@ -367,10 +402,7 @@ export class MovementFireblocksSDK {
       accountSequenceNumber,
     };
     try {
-      const response = await this.movementService.createTransaction(
-        args,
-        grossTransaction
-      );
+      const response = await this.movementService.createTransaction(args);
       return response;
     } catch (error) {
       throw new Error(

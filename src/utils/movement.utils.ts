@@ -102,7 +102,6 @@ export const createTransaction = async (
     throw new Error("Movement address is not set.");
   }
   const sender: AccountAddressInput = movementAddress;
-
   const data: InputEntryFunctionData = {
     function:
       transactionType === TransactionType.TOKEN
@@ -144,13 +143,10 @@ export const createTransaction = async (
       const netAmount = amount - feesInOctas;
       data.functionArguments[data.functionArguments.length - 1] = netAmount; // Adjust the amount in function arguments array to account for fees
       console.log(
-        `Adjusted amount for gross transaction: ${
-          data.functionArguments[data.functionArguments.length - 1]
-        } (original: ${amount}, fees: ${feesInOctas})`
+        `Adjusted amount for gross transaction: ${netAmount} (original: ${amount}, fees: ${feesInOctas})`
       );
       transaction = await movementService.buildTransaction(buildArgs); // rebuild after adjusting amount
     }
-
     const signingMessage = movementService.serializeTransaction(transaction);
     const rawSignature = await fireblocksService.rawSignTransaction(
       signingMessage,

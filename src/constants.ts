@@ -41,3 +41,6 @@ export const AptosSDKConstants = {
   fullnodeUrl: "https://mainnet.movementnetwork.xyz/v1",
   indexerUrl: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
 };
+
+export const BRIDGING_ADDRESS =
+  "0x9fdeccebb619da64a0922cf32738611d101340934f5087ac39c884b4a5d6f1";

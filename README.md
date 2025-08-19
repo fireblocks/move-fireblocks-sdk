@@ -2,6 +2,9 @@
 
 A stateless SDK and REST API server for interacting with Fireblocks and the Movement Network, enabling secure operations on Movement using Fireblocks services.
 
+The SDK Typedocs can be found here:
+https://fireblocks.github.io/move-fireblocks-sdk/
+
 ---
 
 ## ⚡ Project Overview
