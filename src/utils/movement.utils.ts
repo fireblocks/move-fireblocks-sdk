@@ -25,7 +25,6 @@ import {
 } from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
 import { formatErrorMessage } from "./errorHandling";
-import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 
 export const deriveAptosAddress = (pubKeyHex: string): string => {
   const clean = pubKeyHex.startsWith("0x") ? pubKeyHex.slice(2) : pubKeyHex;

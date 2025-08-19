@@ -41,7 +41,6 @@ import {
 import { getTransactionConstants, moveDecimalPlaces } from "./constants";
 import { formatErrorMessage } from "./utils/errorHandling";
 import { validateApiCredentials } from "./utils/fireblocks.utils";
-import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 
 export type MovementFireblocksSDKResponse =
   | string

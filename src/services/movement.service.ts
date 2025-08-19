@@ -40,8 +40,6 @@ import {
 } from "../utils/movement.utils";
 import { AptosSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
-import { StringDecoder } from "string_decoder";
-import { g } from "@aptos-labs/ts-sdk/dist/common/accountAddress-AL8HRxQC";
 
 const fullnodeURL =
   process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
@@ -62,7 +60,12 @@ export class MovementService {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
       fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
-      indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
+      // indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
+      clientConfig: {
+        HEADERS: {
+          Authorization: `Bearer Fireblockse4lC3aUUOfgjkhfgiu7fughykfjhgyDWttdruGBis4HhJAScAcsqxccZ`,
+        },
+      },
     });
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
