@@ -80,10 +80,10 @@ export const createTransactionPayload = (note?: string): TransactionRequest => {
       type: TransferPeerPathType.VaultAccount,
     },
     operation: TransactionOperation.Raw,
+    assetId: "APTOS",
     extraParameters: {
       rawMessageData: {
         messages: [{}],
-        algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
       },
     },
   };
@@ -137,6 +137,8 @@ export const rawSign = async (
   const hexContent = Buffer.from(content).toString("hex");
   const transactionPayload = createTransactionPayload(note);
 
+  transactionPayload.source.id = String(vaultAccountId);
+
   if (typeof vaultAccountId === "string") {
     vaultAccountId = Number(vaultAccountId);
     if (isNaN(vaultAccountId)) {
@@ -150,16 +152,8 @@ export const rawSign = async (
     messages: [
       {
         content: hexContent,
-        derivationPath: [
-          derivationPath.purpose,
-          derivationPath.coinType,
-          vaultAccountId,
-          derivationPath.change,
-          derivationPath.addressIndex,
-        ],
       },
     ],
-    algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
   };
 
   try {
