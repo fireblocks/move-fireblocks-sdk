@@ -37,7 +37,7 @@ account_transactions(
   defaultOffset: 0,
 };
 
-export const AptosSDKConstants = {
+export const MovementSDKConstants = {
   fullnodeUrl: "https://mainnet.movementnetwork.xyz/v1",
   indexerUrl: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
 };

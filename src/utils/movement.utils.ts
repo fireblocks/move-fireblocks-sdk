@@ -26,7 +26,7 @@ import {
 import { checkSignature } from "./fireblocks.utils";
 import { formatErrorMessage } from "./errorHandling";
 
-export const deriveAptosAddress = (pubKeyHex: string): string => {
+export const deriveMovementAddress = (pubKeyHex: string): string => {
   const clean = pubKeyHex.startsWith("0x") ? pubKeyHex.slice(2) : pubKeyHex;
   const pubBytes = Buffer.from(clean, "hex");
   const withScheme = Buffer.concat([pubBytes, Buffer.from([0x00])]);

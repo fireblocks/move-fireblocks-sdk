@@ -1,6 +1,6 @@
 /**
- * The MovementService class provides a high-level interface for interacting with the Aptos blockchain
- * using the Movement SDK. It supports building, serializing, signing, submitting, and tracking transactions,
+ * The MovementService class provides a high-level interface for interacting with the Movement blockchain
+ * using the Aptos Typescript SDK. It supports building, serializing, signing, submitting, and tracking transactions,
  * as well as querying account balances, coin data, and transaction history.
  *
  * @remarks
@@ -37,17 +37,17 @@ import {
   createTransaction,
   serializeTransaction,
 } from "../utils/movement.utils";
-import { AptosSDKConstants, getTransactionConstants } from "../constants";
+import { MovementSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
 
 const fullnodeURL =
-  process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
+  process.env.MOVEMENT_FULLNODE_URL || MovementSDKConstants.fullnodeUrl;
 const indexerURL =
-  process.env.APTOS_INDEXER_URL || AptosSDKConstants.indexerUrl;
+  process.env.MOVEMENT_INDEXER_URL || MovementSDKConstants.indexerUrl;
 
 if (!indexerURL || !fullnodeURL) {
   throw new Error(
-    "Aptos configuration is not set. Please check APTOS_FULLNODE_URL and APTOS_NETWORK environment variables."
+    "Movement configuration is not set. Please check MOVEMENT_FULLNODE_URL and MOVEMENT_NETWORK environment variables."
   );
 }
 

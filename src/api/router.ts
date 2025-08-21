@@ -27,7 +27,7 @@ const router = Router();
  * /{vaultId}/address:
  *   get:
  *     summary: Get on-chain account address
- *     description: Retrieves the Aptos/Movement account address for the given vault ID.
+ *     description: Retrieves the Movement account address for the given vault ID.
  *     parameters:
  *       - $ref: '#/components/parameters/vaultId'
  *     responses:
@@ -180,7 +180,7 @@ router.get(
  * /{vaultId}/transfer/move:
  *   post:
  *     summary: Create native coin transfer
- *     description: Initiates transfer of native Aptos coin from vault to recipient.
+ *     description: Initiates transfer of native Movement coin from vault to recipient.
  *     parameters:
  *       - $ref: '#/components/parameters/vaultId'
  *     requestBody:

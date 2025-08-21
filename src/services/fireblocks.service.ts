@@ -17,7 +17,7 @@ import {
   getPublicKeyForDerivationPath,
   rawSign,
 } from "../utils/fireblocks.utils";
-import { deriveAptosAddress } from "../utils/movement.utils";
+import { deriveMovementAddress } from "../utils/movement.utils";
 import { FireblocksConfig } from "./types";
 import { formatErrorMessage } from "../utils/errorHandling";
 
@@ -68,10 +68,10 @@ export class FireblocksService {
    *
    * This method converts the provided `vaultID` to a non-negative integer, validates it,
    * and then derives the corresponding public key using the Fireblocks SDK. It then
-   * generates the Aptos movement address from the public key and validates its format.
+   * generates the Movement address from the public key and validates its format.
    *
    * @param vaultID - The Fireblocks vault ID as a string or number. Must be a valid non-negative integer.
-   * @returns A promise that resolves to the derived Aptos movement address as a string (66-character hex string starting with "0x").
+   * @returns A promise that resolves to the derived Movement address as a string (66-character hex string starting with "0x").
    * @throws {Error} If the vault ID is invalid, the public key format is incorrect, the derived address format is incorrect, or if any error occurs during the process.
    */
   public getMovementAddressByVaultID = async (
@@ -92,7 +92,7 @@ export class FireblocksService {
           `Invalid public key format: ${publicKey}. Expected a 64-character hex string.`
         );
       }
-      const movementAddress = deriveAptosAddress(publicKey);
+      const movementAddress = deriveMovementAddress(publicKey);
       if (
         typeof movementAddress !== "string" ||
         !movementAddress.startsWith("0x") ||
