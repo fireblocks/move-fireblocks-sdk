@@ -16,7 +16,7 @@ import * as fs from "fs";
 
 export const validateApiCredentials = (
   apiKey: string,
-  secretKeyPath: string,
+  secretKeyOrPath: string,
   vaultAccountId?: string | number
 ): void => {
   // Validate API key is a valid UUID (v4)
@@ -26,11 +26,18 @@ export const validateApiCredentials = (
     throw new Error("API key is not a valid UUID v4.");
   }
 
-  // Validate secret key path exists and is a file
-  if (!fs.existsSync(secretKeyPath) || !fs.statSync(secretKeyPath).isFile()) {
-    throw new Error(`Secret key file does not exist at path: ${secretKeyPath}`);
+  // Check if input is a file path or a PEM string
+  let privateKeyContent = secretKeyOrPath;
+  if (fs.existsSync(secretKeyOrPath) && fs.statSync(secretKeyOrPath).isFile()) {
+    privateKeyContent = fs.readFileSync(secretKeyOrPath, "utf8");
   }
 
+  // Validate PEM format
+  const pemRegex =
+    /-----BEGIN PRIVATE KEY-----[\s\S]+-----END PRIVATE KEY-----/;
+  if (!pemRegex.test(privateKeyContent)) {
+    throw new Error("Secret key is not a valid PEM private key.");
+  }
   // Validate vaultAccountId if provided
   if (vaultAccountId !== undefined) {
     if (
@@ -73,10 +80,10 @@ export const createTransactionPayload = (note?: string): TransactionRequest => {
       type: TransferPeerPathType.VaultAccount,
     },
     operation: TransactionOperation.Raw,
+    assetId: "APTOS",
     extraParameters: {
       rawMessageData: {
         messages: [{}],
-        algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
       },
     },
   };
@@ -130,6 +137,8 @@ export const rawSign = async (
   const hexContent = Buffer.from(content).toString("hex");
   const transactionPayload = createTransactionPayload(note);
 
+  transactionPayload.source.id = String(vaultAccountId);
+
   if (typeof vaultAccountId === "string") {
     vaultAccountId = Number(vaultAccountId);
     if (isNaN(vaultAccountId)) {
@@ -143,16 +152,8 @@ export const rawSign = async (
     messages: [
       {
         content: hexContent,
-        derivationPath: [
-          derivationPath.purpose,
-          derivationPath.coinType,
-          vaultAccountId,
-          derivationPath.change,
-          derivationPath.addressIndex,
-        ],
       },
     ],
-    algorithm: SignedMessageAlgorithmEnum.EddsaEd25519,
   };
 
   try {

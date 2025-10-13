@@ -27,7 +27,7 @@ const router = Router();
  * /{vaultId}/address:
  *   get:
  *     summary: Get on-chain account address
- *     description: Retrieves the Aptos/Movement account address for the given vault ID.
+ *     description: Retrieves the Movement account address for the given vault ID.
  *     parameters:
  *       - $ref: '#/components/parameters/vaultId'
  *     responses:
@@ -180,7 +180,7 @@ router.get(
  * /{vaultId}/transfer/move:
  *   post:
  *     summary: Create native coin transfer
- *     description: Initiates transfer of native Aptos coin from vault to recipient.
+ *     description: Initiates transfer of native Movement coin from vault to recipient.
  *     parameters:
  *       - $ref: '#/components/parameters/vaultId'
  *     requestBody:
@@ -197,6 +197,9 @@ router.get(
  *               amount:
  *                 type: number
  *                 example: 1.5
+ *               inOctas:
+ *                 type: boolean
+ *                 example: true
  *               maxGasAmount:
  *                 type: number
  *                 example: 1000
@@ -209,6 +212,9 @@ router.get(
  *               accountSequenceNumber:
  *                 type: number
  *                 example: 42
+ *               grossTransaction:
+ *                 type: boolean
+ *                 example: true
  *     responses:
  *       200:
  *         description: Transaction created successfully
@@ -245,6 +251,9 @@ router.post(
  *               amount:
  *                 type: number
  *                 example: 10
+ *               inOctas:
+ *                 type: boolean
+ *                 example: true
  *               tokenType:
  *                 type: string
  *                 example: '0x1::aptos_coin::AptosCoin'

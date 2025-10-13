@@ -21,11 +21,12 @@ import {
   SubmitTransactionArguments,
   WaitForTransactionArguments,
   TokenTransactionArguments,
+  TransactionType,
 } from "../services/types";
 import { checkSignature } from "./fireblocks.utils";
 import { formatErrorMessage } from "./errorHandling";
 
-export const deriveAptosAddress = (pubKeyHex: string): string => {
+export const deriveMovementAddress = (pubKeyHex: string): string => {
   const clean = pubKeyHex.startsWith("0x") ? pubKeyHex.slice(2) : pubKeyHex;
   const pubBytes = Buffer.from(clean, "hex");
   const withScheme = Buffer.concat([pubBytes, Buffer.from([0x00])]);
@@ -74,7 +75,8 @@ export const createSenderAuthenticator = (
 };
 
 export const createTransaction = async (
-  createTransactionArguments: CreateTransactionArguments
+  createTransactionArguments: CreateTransactionArguments,
+  grossTransaction: boolean = false
 ): Promise<CommittedTransactionResponse> => {
   const {
     transactionType,
@@ -102,7 +104,7 @@ export const createTransaction = async (
   const sender: AccountAddressInput = movementAddress;
   const data: InputEntryFunctionData = {
     function:
-      transactionType === "token"
+      transactionType === TransactionType.TOKEN
         ? (createTokenTransactionConstants.function as `${string}::${string}::${string}`)
         : (createMoveTransactionConstants.function as `${string}::${string}::${string}`),
     typeArguments: tokenTransfer
@@ -126,7 +128,25 @@ export const createTransaction = async (
     options,
   };
   try {
-    const transaction = await movementService.buildTransaction(buildArgs);
+    let transaction = await movementService.buildTransaction(buildArgs);
+    if (grossTransaction) {
+      console.log(
+        " ---- Gross transaction is enabled, adjusting amount to account for fees ----"
+      );
+      const publicKey = new Ed25519PublicKey(movementPublicKey);
+      const response = await movementService.simulateTransaction(
+        transaction,
+        publicKey
+      );
+      const feesInOctas =
+        Number(response.gas_used) * Number(response.gas_unit_price);
+      const netAmount = amount - feesInOctas;
+      data.functionArguments[data.functionArguments.length - 1] = netAmount; // Adjust the amount in function arguments array to account for fees
+      console.log(
+        `Adjusted amount for gross transaction: ${netAmount} (original: ${amount}, fees: ${feesInOctas})`
+      );
+      transaction = await movementService.buildTransaction(buildArgs); // rebuild after adjusting amount
+    }
     const signingMessage = movementService.serializeTransaction(transaction);
     const rawSignature = await fireblocksService.rawSignTransaction(
       signingMessage,

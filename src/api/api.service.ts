@@ -25,7 +25,7 @@ export class MovementFireblocksApiService {
     vaultAccountId: string,
     actionType: ActionType,
     params: any
-  ): Promise<MovementFireblocksSDKResponse | TransactionResponse> => {
+  ): Promise<MovementFireblocksSDKResponse | TransactionResponse | boolean> => {
     let sdk;
     try {
       // Get SDK instance from the pool
@@ -38,16 +38,19 @@ export class MovementFireblocksApiService {
           result = await sdk.createMoveTransaction(
             params.recipientAddress,
             params.amount,
+            params.inOctas,
             params.maxGasAmount,
             params.gasUnitPrice,
             params.expireTimestamp,
-            params.accountSequenceNumber
+            params.accountSequenceNumber,
+            params.grossTransaction
           );
           break;
         case ActionType.CREATE_TOKEN_TRANSACTION:
           result = await sdk.createTokenTransaction(
             params.recipientAddress,
             params.amount,
+            params.inOctas,
             params.tokenType,
             params.maxGasAmount,
             params.gasUnitPrice,
@@ -76,6 +79,9 @@ export class MovementFireblocksApiService {
           break;
         case ActionType.GET_ACCOUNT_PUBLIC_KEY:
           result = await sdk.getMovementAccountPublicKey();
+          break;
+        case ActionType.CHECK_ACCOUNT_EXISTS:
+          result = await sdk.checkAccountExists();
           break;
         default:
           throw new Error(

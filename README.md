@@ -23,7 +23,7 @@ It's designed to simplify integration with Fireblocks for secure Movement transa
 
 ## 🚀 Features
 
-- **Secure Movement/Aptos Transactions**: All transactions are Fireblocks-signed and submitted to Movement.
+- **Secure Movement Transactions**: All transactions are Fireblocks-signed and submitted to Movement.
 - **Fireblocks raw signing support**
 - **REST API mode**: Easily integrate through HTTP requests.
 - **Vault pooling**: Efficient per-vault instance management.
@@ -71,8 +71,8 @@ Environment variables (via `.env`) control SDK behavior:
 | FIREBLOCKS_API_KEY         | Yes      | –                                                      | Your Fireblocks API key                 |
 | FIREBLOCKS_SECRET_KEY_PATH | Yes      | –                                                      | Path to your Fireblocks secret key file |
 | FIREBLOCKS_BASE_PATH       | No       | BasePath.US from "@fireblocks/ts-sdk"                  | Base URL of the Fireblocks API          |
-| APTOS_FULLNODE_URL         | No       | https://mainnet.movementnetwork.xyz/v1                 | Movement/Aptos fullnode endpoint        |
-| APTOS_INDEXER_URL          | No       | https://indexer.mainnet.movementnetwork.xyz/v1/graphql | Movement indexer (GraphQL) URL          |
+| MOVEMENT_FULLNODE_URL      | No       | https://mainnet.movementnetwork.xyz/v1                 | Movement fullnode endpoint              |
+| MOVEMENT_INDEXER_URL       | No       | https://indexer.mainnet.movementnetwork.xyz/v1/graphql | Movement indexer (GraphQL) URL          |
 | PORT                       | No       | 3000                                                   | Port to run the REST API server         |
 
 ### Sample `.env`:
@@ -82,8 +82,8 @@ FIREBLOCKS_BASE_PATH=https://api.fireblocks.io/v1
 FIREBLOCKS_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 FIREBLOCKS_SECRET_KEY_PATH=./secrets/fireblocks_secret.key
 
-APTOS_FULLNODE_URL=https://mainnet.movementnetwork.xyz/v1
-APTOS_INDEXER_URL=https://indexer.mainnet.movementnetwork.xyz/v1/graphql
+MOVEMENT_FULLNODE_URL=https://mainnet.movementnetwork.xyz/v1
+MOVEMENT_INDEXER_URL=https://indexer.mainnet.movementnetwork.xyz/v1/graphql
 
 PORT=3000
 ```
@@ -140,7 +140,7 @@ npm run dev
 | Method | Route                          | Description                                                |
 | ------ | ------------------------------ | ---------------------------------------------------------- |
 | GET    | `/api/:vaultId/address`        | Fetch the on-chain address associated with the given vault |
-| GET    | `/api/:vaultId/balance`        | Get the native Aptos coin balance                          |
+| GET    | `/api/:vaultId/balance`        | Get the native Movement coin balance                       |
 | GET    | `/api/:vaultId/balances`       | Get all token and coin balances for the vault              |
 | GET    | `/api/:vaultId/coins_data`     | Fetch metadata about all coins held in the vault           |
 | GET    | `/api/:vaultId/publicKey`      | Retrieve the public key for the vault account              |

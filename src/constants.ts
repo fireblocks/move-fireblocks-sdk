@@ -5,6 +5,8 @@ export const derivationPath = {
   addressIndex: 0,
 };
 
+export const moveDecimalPlaces = 8;
+
 export const createMoveTransactionConstants = {
   function: "0x1::aptos_account::transfer",
 };
@@ -35,7 +37,10 @@ account_transactions(
   defaultOffset: 0,
 };
 
-export const AptosSDKConstants = {
+export const MovementSDKConstants = {
   fullnodeUrl: "https://mainnet.movementnetwork.xyz/v1",
   indexerUrl: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
 };
+
+export const BRIDGING_ADDRESS =
+  "0x9fdeccebb619da64a0922cf32738611d101340934f5087ac39c884b4a5d6f1";

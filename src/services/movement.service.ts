@@ -1,20 +1,23 @@
 /**
- * The MovementService class provides a high-level interface for interacting with the Aptos blockchain
- * using the Movement SDK. It supports building, serializing, signing, submitting, and tracking transactions,
+ * The MovementService class provides a high-level interface for interacting with the Movement blockchain
+ * using the Aptos Typescript SDK. It supports building, serializing, signing, submitting, and tracking transactions,
  * as well as querying account balances, coin data, and transaction history.
  *
  * @remarks
  * This service abstracts the complexity of direct SDK usage and provides utility methods for common blockchain operations.
  */
 import {
+  AccountAddressInput,
   AccountAuthenticator,
   Aptos,
   AptosConfig,
   CommittedTransactionResponse,
+  Ed25519PublicKey,
   GetAccountCoinsDataResponse,
   Network,
   PendingTransactionResponse,
   SimpleTransaction,
+  UserTransactionResponse,
 } from "@aptos-labs/ts-sdk";
 import {
   BuildTransactionArguments,
@@ -34,17 +37,17 @@ import {
   createTransaction,
   serializeTransaction,
 } from "../utils/movement.utils";
-import { AptosSDKConstants, getTransactionConstants } from "../constants";
+import { MovementSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
 
 const fullnodeURL =
-  process.env.APTOS_FULLNODE_URL || AptosSDKConstants.fullnodeUrl;
+  process.env.MOVEMENT_FULLNODE_URL || MovementSDKConstants.fullnodeUrl;
 const indexerURL =
-  process.env.APTOS_INDEXER_URL || AptosSDKConstants.indexerUrl;
+  process.env.MOVEMENT_INDEXER_URL || MovementSDKConstants.indexerUrl;
 
 if (!indexerURL || !fullnodeURL) {
   throw new Error(
-    "Aptos configuration is not set. Please check APTOS_FULLNODE_URL and APTOS_NETWORK environment variables."
+    "Movement configuration is not set. Please check MOVEMENT_FULLNODE_URL and MOVEMENT_NETWORK environment variables."
   );
 }
 
@@ -258,8 +261,18 @@ export class MovementService {
     try {
       const response = await this.MovementSDK.getAccountCoinsData({
         accountAddress,
-        minimumLedgerVersion,
       });
+      if (!Array.isArray(response)) {
+        throw new Error("Invalid response format");
+      }
+
+      if (response.length === 0) {
+        return {
+          moveCoins: [],
+          total_in_octas: 0,
+          total: 0,
+        };
+      }
 
       const moveCoins = response
         .filter((coin) => coin.metadata?.symbol === "MOVE")
@@ -374,6 +387,30 @@ export class MovementService {
   };
 
   /**
+   * Simulates a transaction using the Movement SDK.
+   * @param transaction - The {@link SimpleTransaction} object to simulate.
+   * @param pubKey - The public key of the sender.
+   * @returns A Promise that resolves to a UserTransactionResponse object.
+   * @throws Will throw an error if the simulation fails.
+   */
+  public simulateTransaction = async (
+    transaction: SimpleTransaction,
+    pubKey: Ed25519PublicKey
+  ): Promise<UserTransactionResponse> => {
+    try {
+      const [response] = await this.MovementSDK.transaction.simulate.simple({
+        signerPublicKey: pubKey,
+        transaction,
+      });
+      return response;
+    } catch (error: any) {
+      throw new Error(
+        `Failed to simulate transaction: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
    * Creates a transaction on the Movement blockchain.
    * @param createTransactionArguments - An object containing the parameters to create the transaction.
    * creates MOVE or token transactions depending on the tokenTransfer boolean parameter.
@@ -381,14 +418,45 @@ export class MovementService {
    * @throws Will throw an error if the transaction creation fails.
    */
   public createTransaction = async (
-    createTransactionArguments: CreateTransactionArguments
+    createTransactionArguments: CreateTransactionArguments,
+    grossTransaction?: boolean
   ): Promise<CommittedTransactionResponse> => {
     try {
-      const response = await createTransaction(createTransactionArguments);
+      const response = await createTransaction(
+        createTransactionArguments,
+        grossTransaction
+      );
       return response;
     } catch (error: any) {
       throw new Error(
         `Failed to create transaction: ${formatErrorMessage(error)}`
+      );
+    }
+  };
+
+  /**
+   * Checks if the address has an existing account on the Movement blockchain.
+   * @param accountAddress- The address to check for account existence.
+   * @returns A Promise of boolean, true if the account exists and false otherwise.
+   * @throws Will throw an error if the check fails.
+   */
+  public checkAccountExists = async (
+    accountAddress: AccountAddressInput
+  ): Promise<boolean> => {
+    try {
+      const result = await this.MovementSDK.getAccountResources({
+        accountAddress,
+      });
+      if (result) {
+        return true;
+      }
+    } catch (error: any) {
+      const code = error.data?.error_code ?? error.error_code;
+      if (code === "account_not_found") {
+        return false;
+      }
+      throw new Error(
+        `Failed to check account existence: ${formatErrorMessage(error)}`
       );
     }
   };
