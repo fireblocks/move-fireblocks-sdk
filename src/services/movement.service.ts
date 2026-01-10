@@ -28,7 +28,6 @@ import {
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
   GetTransactionHistoyArguments,
-  MovementConfig,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
 } from "./types";
@@ -39,7 +38,6 @@ import {
 } from "../utils/movement.utils";
 import { MovementSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
-import { log } from "console";
 
 const testnet =
   process.env.MOVEMENT_NETWORK &&
@@ -52,10 +50,6 @@ const fullnodeURL = testnet
 const indexerURL = testnet
   ? MovementSDKConstants.indexerUrlTestnet
   : MovementSDKConstants.indexerUrl;
-
-console.log("Using Movement Network:", testnet ? "TESTNET" : "MAINNET");
-console.log("Fullnode URL:", fullnodeURL);
-console.log("Indexer URL:", indexerURL);
 
 if (!indexerURL || !fullnodeURL) {
   throw new Error("Movement configuration was not set properly.");

@@ -84,7 +84,7 @@ MOVEMENT_NETWORK=TESTNET
 PORT=3000
 ```
 
-Note: Setting MOVEMENT_NETWROK to anything other than TESTNET (or tesnet) will set the network as mainnet.
+Note: Setting MOVEMENT_NETWORK to anything other than TESTNET (or testnet) will set the network as mainnet.
 
 > 🔐 Never commit your `.env` file or secret key to source control.
 
