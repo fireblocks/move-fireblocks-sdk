@@ -60,6 +60,12 @@ export class MovementService {
       network: Network.CUSTOM,
       fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
       indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
+      clientConfig: {
+        HEADERS: {
+          "x-auth": `Bearer ${process.env.BEARER_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
     });
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
@@ -262,6 +268,9 @@ export class MovementService {
       const response = await this.MovementSDK.getAccountCoinsData({
         accountAddress,
       });
+
+      console.log("Account coins data response:", response);
+
       if (!Array.isArray(response)) {
         throw new Error("Invalid response format");
       }
