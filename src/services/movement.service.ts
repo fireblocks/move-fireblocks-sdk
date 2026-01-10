@@ -27,7 +27,7 @@ import {
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
-  GetTransactionHistoyArguments,
+  GetTransactionHistoryArguments,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
 } from "./types";
@@ -326,7 +326,7 @@ export class MovementService {
    * @throws Will throw an error if fetching transaction history fails.
    */
   public getTransactionHistory = async (
-    getTransactionHistoyArguments: GetTransactionHistoyArguments
+    getTransactionHistoyArguments: GetTransactionHistoryArguments
   ): Promise<GetTransactionHistoryResponse[]> => {
     const { accountAddress, options } = getTransactionHistoyArguments;
     const address = accountAddress as string;

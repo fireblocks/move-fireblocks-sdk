@@ -33,7 +33,7 @@ import {
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
-  GetTransactionHistoyArguments,
+  GetTransactionHistoryArguments,
   MoveTransactionArguments,
   TokenTransactionArguments,
   TransactionType,
@@ -224,7 +224,7 @@ export class MovementFireblocksSDK {
       throw new Error("Movement address is not set.");
     }
     try {
-      const args: GetTransactionHistoyArguments = {
+      const args: GetTransactionHistoryArguments = {
         accountAddress: this.movementAddress,
         options: {
           limit,
