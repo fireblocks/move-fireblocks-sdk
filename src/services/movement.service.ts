@@ -39,27 +39,37 @@ import {
 } from "../utils/movement.utils";
 import { MovementSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
+import { log } from "console";
 
-const fullnodeURL =
-  process.env.MOVEMENT_FULLNODE_URL || MovementSDKConstants.fullnodeUrl;
-const indexerURL =
-  process.env.MOVEMENT_INDEXER_URL || MovementSDKConstants.indexerUrl;
+const testnet =
+  process.env.MOVEMENT_NETWORK &&
+  process.env.MOVEMENT_NETWORK.toLowerCase() === "testnet";
+
+const fullnodeURL = testnet
+  ? MovementSDKConstants.fullnodeUrlTestnet
+  : MovementSDKConstants.fullnodeUrl;
+
+const indexerURL = testnet
+  ? MovementSDKConstants.indexerUrlTestnet
+  : MovementSDKConstants.indexerUrl;
+
+console.log("Using Movement Network:", testnet ? "TESTNET" : "MAINNET");
+console.log("Fullnode URL:", fullnodeURL);
+console.log("Indexer URL:", indexerURL);
 
 if (!indexerURL || !fullnodeURL) {
-  throw new Error(
-    "Movement configuration is not set. Please check MOVEMENT_FULLNODE_URL and MOVEMENT_NETWORK environment variables."
-  );
+  throw new Error("Movement configuration was not set properly.");
 }
 
 export class MovementService {
   private readonly MovementSDK: Aptos;
   private readonly MovementConfig: AptosConfig;
 
-  constructor(movementConfig?: MovementConfig) {
+  constructor() {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
-      fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
-      indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
+      fullnode: fullnodeURL,
+      indexer: indexerURL,
       clientConfig: {
         HEADERS: {
           "x-auth": `Bearer ${process.env.BEARER_TOKEN}`,
@@ -269,8 +279,6 @@ export class MovementService {
         accountAddress,
       });
 
-      console.log("Account coins data response:", response);
-
       if (!Array.isArray(response)) {
         throw new Error("Invalid response format");
       }
@@ -331,7 +339,7 @@ export class MovementService {
     const limit = options?.limit || getTransactionConstants.defaultLimit;
     const offset = options?.offset || getTransactionConstants.defaultOffset;
     try {
-      const result = await fetch(getTransactionConstants.indexerURL, {
+      const result = await fetch(indexerURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

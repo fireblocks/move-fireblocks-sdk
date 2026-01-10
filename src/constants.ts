@@ -40,6 +40,8 @@ account_transactions(
 export const MovementSDKConstants = {
   fullnodeUrl: "https://mainnet.movementnetwork.xyz/v1",
   indexerUrl: "https://indexer.mainnet.movementnetwork.xyz/v1/graphql",
+  fullnodeUrlTestnet: "https://testnet.movementnetwork.xyz/v1",
+  indexerUrlTestnet: "https://indexer.testnet.movementnetwork.xyz/v1/graphql",
 };
 
 export const BRIDGING_ADDRESS =

@@ -177,10 +177,6 @@ export class MovementFireblocksSDK {
       accountAddress: this.movementAddress,
     };
     try {
-      console.log(
-        "In MovementFireblocksSDK.ts - Going to get balance for address:",
-        this.movementAddress
-      );
       return await this.movementService.getMoveBalance(args);
     } catch (error) {
       throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);

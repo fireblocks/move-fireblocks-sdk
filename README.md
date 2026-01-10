@@ -66,14 +66,13 @@ docker-compose -f docker-compose.yml up --build #(Prod Mode)
 
 Environment variables (via `.env`) control SDK behavior:
 
-| Variable                   | Required | Default                                                | Description                             |
-| -------------------------- | -------- | ------------------------------------------------------ | --------------------------------------- |
-| FIREBLOCKS_API_KEY         | Yes      | –                                                      | Your Fireblocks API key                 |
-| FIREBLOCKS_SECRET_KEY_PATH | Yes      | –                                                      | Path to your Fireblocks secret key file |
-| FIREBLOCKS_BASE_PATH       | No       | BasePath.US from "@fireblocks/ts-sdk"                  | Base URL of the Fireblocks API          |
-| MOVEMENT_FULLNODE_URL      | No       | https://mainnet.movementnetwork.xyz/v1                 | Movement fullnode endpoint              |
-| MOVEMENT_INDEXER_URL       | No       | https://indexer.mainnet.movementnetwork.xyz/v1/graphql | Movement indexer (GraphQL) URL          |
-| PORT                       | No       | 3000                                                   | Port to run the REST API server         |
+| Variable                   | Required | Default                               | Description                             |
+| -------------------------- | -------- | ------------------------------------- | --------------------------------------- |
+| FIREBLOCKS_API_KEY         | Yes      | –                                     | Your Fireblocks API key                 |
+| FIREBLOCKS_SECRET_KEY_PATH | Yes      | –                                     | Path to your Fireblocks secret key file |
+| FIREBLOCKS_BASE_PATH       | No       | BasePath.US from "@fireblocks/ts-sdk" | Base URL of the Fireblocks API          |
+| MOVEMENT_NETWORK           | No       | MAINNET                               | Movement mainnet or testnet             |
+| PORT                       | No       | 3000                                  | Port to run the REST API server         |
 
 ### Sample `.env`:
 
@@ -81,12 +80,11 @@ Environment variables (via `.env`) control SDK behavior:
 FIREBLOCKS_BASE_PATH=https://api.fireblocks.io/v1
 FIREBLOCKS_API_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 FIREBLOCKS_SECRET_KEY_PATH=./secrets/fireblocks_secret.key
-
-MOVEMENT_FULLNODE_URL=https://mainnet.movementnetwork.xyz/v1
-MOVEMENT_INDEXER_URL=https://indexer.mainnet.movementnetwork.xyz/v1/graphql
-
+MOVEMENT_NETWORK=TESTNET
 PORT=3000
 ```
+
+Note: Setting MOVEMENT_NETWROK to anything other than TESTNET (or tesnet) will set the network as mainnet.
 
 > 🔐 Never commit your `.env` file or secret key to source control.
 
