@@ -54,7 +54,7 @@ export type GetMoveBalanceResponse = {
   total: number;
 };
 
-export type GetTransactionHistoyArguments = {
+export type GetTransactionHistoryArguments = {
   accountAddress: AccountAddressInput;
   options?: PaginationArgs;
 };

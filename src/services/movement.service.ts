@@ -27,8 +27,7 @@ import {
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
-  GetTransactionHistoyArguments,
-  MovementConfig,
+  GetTransactionHistoryArguments,
   SubmitTransactionArguments,
   WaitForTransactionArguments,
 } from "./types";
@@ -40,26 +39,37 @@ import {
 import { MovementSDKConstants, getTransactionConstants } from "../constants";
 import { formatErrorMessage } from "../utils/errorHandling";
 
-const fullnodeURL =
-  process.env.MOVEMENT_FULLNODE_URL || MovementSDKConstants.fullnodeUrl;
-const indexerURL =
-  process.env.MOVEMENT_INDEXER_URL || MovementSDKConstants.indexerUrl;
+const testnet =
+  process.env.MOVEMENT_NETWORK &&
+  process.env.MOVEMENT_NETWORK.toLowerCase() === "testnet";
+
+const fullnodeURL = testnet
+  ? MovementSDKConstants.fullnodeUrlTestnet
+  : MovementSDKConstants.fullnodeUrl;
+
+const indexerURL = testnet
+  ? MovementSDKConstants.indexerUrlTestnet
+  : MovementSDKConstants.indexerUrl;
 
 if (!indexerURL || !fullnodeURL) {
-  throw new Error(
-    "Movement configuration is not set. Please check MOVEMENT_FULLNODE_URL and MOVEMENT_NETWORK environment variables."
-  );
+  throw new Error("Movement configuration was not set properly.");
 }
 
 export class MovementService {
   private readonly MovementSDK: Aptos;
   private readonly MovementConfig: AptosConfig;
 
-  constructor(movementConfig?: MovementConfig) {
+  constructor() {
     this.MovementConfig = new AptosConfig({
       network: Network.CUSTOM,
-      fullnode: movementConfig ? movementConfig.fullnodeUrl : fullnodeURL,
-      indexer: movementConfig ? movementConfig.indexerUrl : indexerURL,
+      fullnode: fullnodeURL,
+      indexer: indexerURL,
+      clientConfig: {
+        HEADERS: {
+          "x-auth": `Bearer ${process.env.BEARER_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      },
     });
     this.MovementSDK = new Aptos(this.MovementConfig);
   }
@@ -262,6 +272,7 @@ export class MovementService {
       const response = await this.MovementSDK.getAccountCoinsData({
         accountAddress,
       });
+
       if (!Array.isArray(response)) {
         throw new Error("Invalid response format");
       }
@@ -315,14 +326,14 @@ export class MovementService {
    * @throws Will throw an error if fetching transaction history fails.
    */
   public getTransactionHistory = async (
-    getTransactionHistoyArguments: GetTransactionHistoyArguments
+    getTransactionHistoyArguments: GetTransactionHistoryArguments
   ): Promise<GetTransactionHistoryResponse[]> => {
     const { accountAddress, options } = getTransactionHistoyArguments;
     const address = accountAddress as string;
     const limit = options?.limit || getTransactionConstants.defaultLimit;
     const offset = options?.offset || getTransactionConstants.defaultOffset;
     try {
-      const result = await fetch(getTransactionConstants.indexerURL, {
+      const result = await fetch(indexerURL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

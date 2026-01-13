@@ -33,7 +33,7 @@ import {
   GetBalanceArguments,
   GetMoveBalanceResponse,
   GetTransactionHistoryResponse,
-  GetTransactionHistoyArguments,
+  GetTransactionHistoryArguments,
   MoveTransactionArguments,
   TokenTransactionArguments,
   TransactionType,
@@ -177,10 +177,6 @@ export class MovementFireblocksSDK {
       accountAddress: this.movementAddress,
     };
     try {
-      console.log(
-        "In MovementFireblocksSDK.ts - Going to get balance for address:",
-        this.movementAddress
-      );
       return await this.movementService.getMoveBalance(args);
     } catch (error) {
       throw new Error(`Failed to get balance: ${formatErrorMessage(error)}`);
@@ -228,7 +224,7 @@ export class MovementFireblocksSDK {
       throw new Error("Movement address is not set.");
     }
     try {
-      const args: GetTransactionHistoyArguments = {
+      const args: GetTransactionHistoryArguments = {
         accountAddress: this.movementAddress,
         options: {
           limit,
